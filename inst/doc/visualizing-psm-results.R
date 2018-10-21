@@ -53,17 +53,17 @@ psmplot <-  ggplot(data = output.psm$data_vanwestendorp, aes(x = price)) +
                 colour = "too expensive",
                 linetype = "too expensive"),
             size = 1) + 
-  geom_line(aes(y = ecdf_cheap, # line: cheap
-                colour = "cheap",
-                linetype = "cheap"),
+  geom_line(aes(y = ecdf_not_cheap, # line: not cheap
+                colour = "not cheap",
+                linetype = "not cheap"),
             size = 1) +
-  geom_line(aes(y = ecdf_expensive, # line: expensive
-                colour = "expensive",
-                linetype = "expensive"),
+  geom_line(aes(y = ecdf_not_expensive, # line: not expensive
+                colour = "not expensive",
+                linetype = "not expensive"),
             size = 1) + 
   annotate(geom = "point", # Indifference Price Point (intersection of "cheap" and "expensive")
            x = output.psm$idp, 
-           y = output.psm$data_vanwestendorp$ecdf_cheap[output.psm$data_vanwestendorp$price == output.psm$idp],
+           y = output.psm$data_vanwestendorp$ecdf_not_cheap[output.psm$data_vanwestendorp$price == output.psm$idp],
            size = 5,
            shape = 18,
            colour = "#009E73") + 
@@ -83,17 +83,17 @@ psmplot +
        caption = "Shaded area: range of acceptable prices\nData: Randomly generated")  + 
   scale_colour_manual(name = "Legend",
                       values = c("too cheap" = "#009E73",
-                                 "cheap" = "#009E73",
-                                 "expensive" = "#D55E00",
+                                 "not cheap" = "#009E73",
+                                 "not expensive" = "#D55E00",
                                  "too expensive" = "#D55E00")) + 
   scale_linetype_manual(name="Legend",
                         values = c("too cheap" = "dotted",
-                                   "cheap" = "solid",
-                                   "expensive" = "solid",
+                                   "not cheap" = "solid",
+                                   "not expensive" = "solid",
                                    "too expensive" = "dotted")) + 
   annotate(geom = "text", # Label of Indifference Price Point
            x = output.psm$idp + 1.5, 
-           y = output.psm$data_vanwestendorp$ecdf_cheap[output.psm$data_vanwestendorp$price == output.psm$idp],
+           y = output.psm$data_vanwestendorp$ecdf_not_cheap[output.psm$data_vanwestendorp$price == output.psm$idp],
            label = paste("IDP: ", output.psm$idp)) + 
   annotate(geom = "text", # Label of Optimal Price Point
            x = output.psm$opp + 1.5,
@@ -127,15 +127,15 @@ lines(x = output.psm$data_vanwestendorp$price,
       lty = "dotted",
       col = "#009E73")
 
-# adding line: cheap
+# adding line: not cheap
 lines(x = output.psm$data_vanwestendorp$price,
-      y = output.psm$data_vanwestendorp$ecdf_cheap,
+      y = output.psm$data_vanwestendorp$ecdf_not_cheap,
       lty = "solid",
       col = "#009E73")
 
-# adding line: expensive
+# adding line: not expensive
 lines(x = output.psm$data_vanwestendorp$price,
-      y = output.psm$data_vanwestendorp$ecdf_expensive,
+      y = output.psm$data_vanwestendorp$ecdf_not_expensive,
       lty = "solid",
       col = "#D55E00")
 
@@ -158,13 +158,13 @@ par(adj = adj.old) # restore standard (so that next main title is again centered
 
 # adding the Indifference Price Point (intersection of "cheap" and "expensive")
 points(x = output.psm$idp,
-       y = output.psm$data_vanwestendorp$ecdf_cheap[which(output.psm$data_vanwestendorp$price == output.psm$idp)],
+       y = output.psm$data_vanwestendorp$ecdf_not_cheap[which(output.psm$data_vanwestendorp$price == output.psm$idp)],
        cex = 2,
        pch = 18,
        col = "#009E73")
 
 text(x = output.psm$idp,
-     y = output.psm$data_vanwestendorp$ecdf_cheap[which(output.psm$data_vanwestendorp$price == output.psm$idp)],
+     y = output.psm$data_vanwestendorp$ecdf_not_cheap[which(output.psm$data_vanwestendorp$price == output.psm$idp)],
      labels = paste("IDP:", output.psm$idp),
      pos = 4)
 
@@ -177,13 +177,13 @@ points(x = output.psm$opp,
 
 text(x = output.psm$opp,
      y = output.psm$data_vanwestendorp$ecdf_toocheap[which(output.psm$data_vanwestendorp$price == output.psm$opp)],
-     labels = paste("OPP:", output.psm$idp),
+     labels = paste("OPP:", output.psm$opp),
      pos = 4)
 
 # adding legend
 legend("bottomleft",
        title = "Legend",
-       c("too cheap", "cheap", "expensive", "too expensive"),
+       c("too cheap", "not cheap", "not expensive", "too expensive"),
        lty = c("dotted", "solid", "solid", "dotted"),
        col = c("#009E73", "#009E73", "#D55E00", "#D55E00"),
        cex = 0.66)
