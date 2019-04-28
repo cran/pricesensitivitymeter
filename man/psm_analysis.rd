@@ -20,6 +20,7 @@ psm_analysis(
   data = NA,
   validate = TRUE,
   interpolate = FALSE,
+  intersection_method = "min",
   pi_cheap = NA, pi_expensive = NA,
   pi_scale = 5:1,
   pi_calibrated = c(0.7, 0.5, 0.3, 0.1, 0))
@@ -61,6 +62,14 @@ psm_analysis(
   less bumpy in regions with sparse price information. If the
   sample size is sufficiently large, interpolation should not
   be necessary.}
+  \item{intersection_method}{"min" (default), "max", "mean" or
+  "median". defines the method how to determine the price
+  points (range, indifference price, optimal price) if there
+  are multiple possible intersections of the price curves.
+  "min" uses the lowest possible prices, "max" uses the
+  highest possible prices, "mean" calculates the mean among
+  all intersections and "median" uses the median of all
+  possible intersections}
   \item{pi_cheap, pi_expensive}{Only required for the Newton
   Miller Smith extension. If \code{data} argument is provided:
   names of the variables in the data.frame/matrix that contain
@@ -224,6 +233,11 @@ The function output consists of the following elements:
     \item{\code{NMS}:}{\code{logical} object. Indicates whether
     the additional analyses of the Newton Miller Smith Extension
     were performed.}
+    \item{\code{weighted}:}{\code{logical} object. Indicates
+    if weighted data was used in the analysis. Outputs from
+    \code{psm_analysis()} always have the value \code{FALSE}.
+    When data is weighted, use the function
+    \code{\link{psm_analysis_weighted}.}}
     \item{\code{data_nms}:}{\code{data.frame} object. Output of
     the Newton Miller Smith extension: calibrated mean
     purchase probabilities for each price point.}
@@ -257,6 +271,11 @@ The function output consists of the following elements:
   \url{https://www.sawtoothsoftware.com/204-about-us/news-and-events/sawtooth-solutions/1759-templates-for-van-westendorp-psm-for-lighthouse-studio-excel}
 }
 
+\seealso{
+The function \code{psm_analysis_weighted()} performs the same
+analyses for weighted data.
+}
+
 \examples{
 
 set.seed(42)
@@ -269,7 +288,7 @@ ch <- round(rnorm(n = 250, mean = 8.5, sd = 0.5), digits = 2)
 ex <- round(rnorm(n = 250, mean = 13, sd = 0.75), digits = 2)
 tex <- round(rnorm(n = 250, mean = 17, sd = 1), digits = 2)
 
-output.psm.demo1 <- psm_analysis(toocheap = tch,
+output_psm_demo1 <- psm_analysis(toocheap = tch,
   cheap = ch,
   expensive = ex,
   tooexpensive = tex)
@@ -283,16 +302,16 @@ pint_ch <- sample(x = c(1:5), size = length(tex),
 pint_ex <- sample(x = c(1:5), size = length(tex),
   replace = TRUE, prob = c(0.3, 0.3, 0.2, 0.1, 0.1))
 
-data.psm.demo <- data.frame(tch, ch, ex, tex, pint_ch, pint_ex)
+data_psm_demo <- data.frame(tch, ch, ex, tex, pint_ch, pint_ex)
 
-output.psm.demo2 <- psm_analysis(toocheap = "tch",
+output_psm_demo2 <- psm_analysis(toocheap = "tch",
   cheap = "ch",
   expensive = "ex",
   tooexpensive = "tex",
   pi_cheap = "pint_ch",
   pi_expensive = "pint_ex",
-  data = data.psm.demo)
+  data = data_psm_demo)
 
-summary(output.psm.demo2)
+summary(output_psm_demo2)
 }
 
