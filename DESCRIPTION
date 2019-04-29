@@ -1,8 +1,8 @@
 Package: pricesensitivitymeter
-Date: 2019-04-28
+Date: 2019-04-29
 Type: Package
 Title: Van Westendorp Price Sensitivity Meter Analysis
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: person("Max", "Alletsee", email = "max.alletsee@gmail.com",
                   role = c("aut", "cre"))
 Maintainer: Max Alletsee <max.alletsee@gmail.com>
@@ -20,7 +20,7 @@ Imports: survey (>= 3.23-1)
 Suggests: knitr, rmarkdown, testthat, ggplot2
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2019-04-28 10:15:27 UTC; maxal
+Packaged: 2019-04-29 20:37:37 UTC; maxal
 Author: Max Alletsee [aut, cre]
 Repository: CRAN
-Date/Publication: 2019-04-28 15:30:03 UTC
+Date/Publication: 2019-04-29 21:30:03 UTC
