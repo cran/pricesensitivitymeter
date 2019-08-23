@@ -28,11 +28,18 @@ data_psm_test <- data.frame(tch = round(rnorm(n = 20, mean = 5, sd = 0.5), digit
 test_that("Data Input: data frame input structure", {
   expect_silent(psm_analysis(data = data_psm_test, toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex"))
   expect_silent(psm_analysis(data = as.matrix(data_psm_test), toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex"))
+
+  expect_error(psm_analysis(data = "data_psm_test", toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex"))
+  expect_error(psm_analysis(data = data_psm_test, toocheap = round(rnorm(n = 20, mean = 5, sd = 0.5), digits = 2),
+                            cheap = round(rnorm(n = 20, mean = 8.5, sd = 0.5), digits = 2),
+                            expensive = round(rnorm(n = 20, mean = 13, sd = 0.75), digits = 2),
+                            tooexpensive = round(rnorm(n = 20, mean = 17, sd = 1), digits = 2)))
   expect_error(psm_analysis(data = data_psm_test, toocheap = tch, cheap = "ch", expensive = "ex", tooexpensive = "tex"))
   expect_error(psm_analysis(data = data_psm_test, toocheap = "tch", cheap = "2", expensive = "ex", tooexpensive = "tex"))
   expect_error(psm_analysis(data = data_psm_test, toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = c("tex", "tex")))
   expect_error(psm_analysis(data = data_psm_test, toocheap = "tch", cheap = "", expensive = "ex", tooexpensive = "tex"))
   expect_error(psm_analysis(data = data_psm_test, toocheap = "tch", expensive = "ex", tooexpensive = "tex"))
+
 }
 )
 
@@ -75,6 +82,20 @@ test_that("Data Input: interpolate must be logical vector of length 1", {
 )
 
 #----
+# Detecting invalid input data: "interpolation_steps" must be valid if interpolate == TRUE
+# (but can be off when interpolate == FALSE)
+#----
+test_that("Data Input: interpolatation_steps must be numeric vector of length 1", {
+  expect_error(psm_analysis(toocheap = 1, cheap = 2, expensive = 3, tooexpensive = 4, interpolate = TRUE, interpolation_steps = c(0, 1)))
+  expect_error(psm_analysis(toocheap = 1, cheap = 2, expensive = 3, tooexpensive = 4, interpolate = TRUE, interpolation_steps = "default"))
+
+  expect_silent(psm_analysis(toocheap = 1, cheap = 2, expensive = 3, tooexpensive = 4, interpolate = TRUE, interpolation_steps = 1))
+  expect_silent(psm_analysis(toocheap = 1, cheap = 2, expensive = 3, tooexpensive = 4, interpolate = FALSE, interpolation_steps = c(0, 1)))
+  expect_silent(psm_analysis(toocheap = 1, cheap = 2, expensive = 3, tooexpensive = 4, interpolate = FALSE, interpolation_steps = "default"))
+}
+)
+
+#----
 # Detecting invalid input data: "intersection_method" must be one of the pre-defined values
 #----
 
@@ -102,9 +123,12 @@ test_that("Data Input: NMS using vectors", {
   expect_error(psm_analysis(toocheap = 1, cheap = 2, expensive = 3, tooexpensive = 4, pi_cheap = 1, pi_expensive = rep.int(2, 2)))
   expect_error(psm_analysis(toocheap = c(1,1), cheap = c(2,2), expensive = c(3,3), tooexpensive = c(4,4), pi_cheap = 1, pi_expensive = rep.int(2, 2)))
   expect_error(psm_analysis(toocheap = 1, cheap = 2, expensive = 3, tooexpensive = 4, pi_cheap = -1, pi_expensive = 2))
+  expect_error(psm_analysis(toocheap = 1, cheap = 2, expensive = 3, tooexpensive = 4, pi_cheap = 1, pi_expensive = -2))
+  expect_error(psm_analysis(toocheap = c(5, 6), cheap = c(8, 9), expensive = c(12, 14), tooexpensive = c(16, 18), pi_cheap = 3, pi_expensive = 2))
   expect_silent(psm_analysis(toocheap = 1, cheap = 2, expensive = 3, tooexpensive = 4, pi_cheap = 3, pi_expensive = 2))
 }
 )
+
 
 #----
 # Detecting invalid input data: NMS using data frames

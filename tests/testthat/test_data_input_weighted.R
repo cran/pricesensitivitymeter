@@ -18,6 +18,8 @@ input_data <- data.frame(tch = round(rnorm(n = 250, mean = 8, sd = 0.5), digits 
                                            replace = TRUE, prob = c(0.1, 0.1, 0.2, 0.3, 0.3)),
                          pi_expensive = sample(x = c(1:5), size = 250,
                                                replace = TRUE, prob = c(0.3, 0.3, 0.2, 0.1, 0.1)),
+                         pi_expensive_errors = sample(x = c(2:6), size = 250,
+                                                      replace = TRUE, prob = c(0.3, 0.3, 0.2, 0.1, 0.1)),
                          gender = sample(x = c("male", "female"),
                                          size = 250,
                                          replace = TRUE,
@@ -41,6 +43,15 @@ input_design <- survey::svydesign(ids = ~ 1, # no clusters
                                   strata = input_data$gender, # stratified by gender
                                   fpc = input_data$gender_pop, # strata size in the population
                                   data = input_data) # data object used as input
+
+
+#----
+# Ensure that survey package is available
+#----
+
+test_that("Survey Package is loaded", {
+  expect_true(isNamespaceLoaded("survey"))
+})
 
 
 #----
@@ -97,6 +108,22 @@ test_that("Data Input - Weighted Analysis: interpolate must be logical vector of
   expect_silent(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, interpolate = FALSE))
 })
 
+
+#----
+# Detecting invalid input data: "interpolation_steps" must be valid if interpolate == TRUE
+# (but can be off when interpolate == FALSE)
+#----
+test_that("Data Input: interpolatation_steps must be numeric vector of length 1", {
+  expect_error(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, interpolate = TRUE, interpolation_steps = c(0, 1)))
+  expect_error(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, interpolate = TRUE, interpolation_steps = "default"))
+
+  expect_silent(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, interpolate = TRUE, interpolation_steps = 1))
+
+  expect_silent(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, interpolate = FALSE, interpolation_steps = c(0, 1)))
+  expect_silent(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, interpolate = FALSE, interpolation_steps = "default"))
+}
+)
+
 #----
 # Detecting invalid input data: "intersection_method" must be one of the pre-defined values
 #----
@@ -113,9 +140,24 @@ test_that("Data Input: intersection_method must be one of the pre-defined values
 }
 )
 
+#----
+# Detecting invalid input data: at least one case must have consistent preference structures
+#----
+
+test_that("Data Input: consistency of preference structures", {
+  expect_error(psm_analysis_weighted(toocheap = "tex", cheap = "ch", expensive = "tch", tooexpensive = "tex", design = input_design))
+}
+)
+
 #---
 # General NMS Options (length of PI scale and calibration scale, match between answers and defined pattern, numeric calibration values, warning if calibration out of bounds)
 #---
+
+test_that("Data Input - Weighted NMS: both PI variables must exist", {
+  expect_error(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, pi_cheap = "pi_cheap_wrong", pi_expensive = "pi_expensive", pi_scale = 1:5, pi_calibrated = seq(0, 1, length.out = 5)))
+  expect_error(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, pi_cheap = "pi_cheap", pi_expensive = "pi_expensive_wrong", pi_scale = 1:5, pi_calibrated = seq(0, 1, length.out = 5)))
+}
+)
 
 test_that("Data Input - Weighted NMS: length of PI scale and calibration scale", {
   expect_error(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, pi_cheap = "pi_cheap", pi_expensive = "pi_expensive", pi_scale = 1:6, pi_calibrated = seq(0, 1, length.out = 5)))
@@ -127,6 +169,8 @@ test_that("Data Input - Weighted NMS: length of PI scale and calibration scale",
 test_that("Data Input: NMS - match between answers and defined pattern", {
   expect_error(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, pi_cheap = "pi_cheap", pi_expensive = "pi_expensive", pi_scale = 2:5, pi_calibrated = seq(0, 1, length.out = 4)))
   expect_error(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, pi_cheap = "pi_cheap", pi_expensive = "pi_expensive", pi_scale = c(1.1,2:5), pi_calibrated = seq(0, 1, length.out = 5)))
+  expect_error(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, pi_cheap = "pi_cheap", pi_expensive = "pi_expensive", pi_scale = as.character(1:5), pi_calibrated = seq(0, 1, length.out = 5)))
+  expect_error(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, pi_cheap = "pi_cheap", pi_expensive = "pi_expensive_errors", pi_scale = 1:5, pi_calibrated = seq(0, 1, length.out = 5)))
 }
 )
 
@@ -146,6 +190,8 @@ test_that("Data Input: NMS - warning if calibration values out of bounds", {
   expect_error(psm_analysis_weighted(toocheap = "tch", cheap = "ch", expensive = "ex", tooexpensive = "tex", design = input_design, pi_cheap = "pi_cheap", pi_expensive = "pi_expensive", pi_scale = 5:1, pi_calibrated = c(Inf, 0, 0, 0, -Inf)))
 }
 )
+
+
 
 
 #----

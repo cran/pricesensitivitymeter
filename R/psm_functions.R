@@ -3,7 +3,8 @@
 #---------------------
 
 psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
-                         validate = TRUE, interpolate = FALSE,
+                         validate = TRUE,
+                         interpolate = FALSE, interpolation_steps = 0.01,
                          intersection_method = "min",
                          pi_cheap = NA, pi_expensive = NA,
                          pi_scale = 5:1, pi_calibrated = c(0.7, 0.5, 0.3, 0.1, 0)) {
@@ -31,19 +32,23 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
     stop("intersection_method must be one of the pre-defined values: min, max, mean, median")
   }
 
+  # input check 1d: if interpolate == TRUE, interpolation steps must be numeric vector of length 1
+  if(interpolate & (length(interpolation_steps) != 1 | !is.numeric(interpolation_steps))) {
+    stop("interpolatation_steps must be numeric value (vector of length 1)")
+  }
+
   # input check 2: if data is provided in a dataset, structure and format must be correct
 
   if(!is.data.frame(data) & !is.matrix(data) & !all(is.na(data))) {
     stop("If the data argument is used, it must provide a data frame (or matrix) object")
+  }
 
+  if(is.data.frame(data) | is.matrix(data)) {
     if(!is.character(toocheap) | !is.character(cheap) | !is.character(expensive) | !is.character(tooexpensive) |
        length(toocheap) != 1 | length(cheap) != 1 | length(expensive) != 1 | length(tooexpensive) != 1) {
       stop("If the data argument is used, all price arguments (toocheap, cheap, expensive, tooexpensive) must be character values that contain the name of the respective price variable in the data object")
     }
-  }
 
-
-  if(is.data.frame(data) | is.matrix(data)) {
     # identify columns in data object that are supposed to contain the price variables
     if(length(toocheap) == 1 & length(cheap) == 1 & length(expensive) == 1 & length(tooexpensive) == 1) {
     col_toocheap <- match(toocheap, colnames(data))
@@ -159,20 +164,20 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
     }
 
     # input check 9: calibration values must be between 0 and 1 - only warning if this is not the case...
-    if(any(pi_calibrated < 0)) {
-      warning("Some of the purchase intent calibration values are smaller than 0. It seems that this is not a probability between 0 and 1. The interpretation of the trial/revenue values is not recommended.")
-    }
-
-    if(any(pi_calibrated > 1)) {
-      warning("Some of the purchase intent calibration values are larger than 1. It seems that this is not a probability between 0 and 1. The interpretation of the trial/revenue values is not recommended.")
-    }
-
     if(any(is.nan(pi_calibrated))) {
       stop("Some of the purchase intent calibration values are not a number (NaN)")
     }
 
     if(any(is.infinite(pi_calibrated))) {
       stop("Some of the purchase intent calibration values are infinite (-Inf, Inf).")
+    }
+
+        if(any(pi_calibrated < 0)) {
+      warning("Some of the purchase intent calibration values are smaller than 0. It seems that this is not a probability between 0 and 1. The interpretation of the trial/revenue values is not recommended.")
+    }
+
+    if(any(pi_calibrated > 1)) {
+      warning("Some of the purchase intent calibration values are larger than 1. It seems that this is not a probability between 0 and 1. The interpretation of the trial/revenue values is not recommended.")
     }
   }
 
@@ -241,11 +246,11 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
   ecdf_psm <- ecdf(psmdata$tooexpensive)
   data_ecdf$ecdf_tooexpensive <- ecdf_psm(data_ecdf$price)
 
-  # if interpolation is enabled: create bigger dataframe that contains all the actual price information plus fixed price steps of 0.01 between those values
+  # if interpolation is enabled: create bigger dataframe that contains all the actual price information plus price steps according to the interpolation_steps parameter
   if(isTRUE(interpolate)) {
     data_ecdf_smooth <- data.frame(price = seq(from = min(data_ecdf$price),
                                                to = max(data_ecdf$price),
-                                               by = 0.01))
+                                               by = abs(interpolation_steps)))
 
     # merge with existing dataframe incl. information on empirical cumulative density functions
     data_ecdf_smooth <- merge(x = data_ecdf_smooth,

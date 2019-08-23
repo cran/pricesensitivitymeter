@@ -4,7 +4,8 @@
 #---------------------
 
 psm_analysis_weighted <- function(toocheap, cheap, expensive, tooexpensive, design,
-                                  validate = TRUE, interpolate = FALSE,
+                                  validate = TRUE,
+                                  interpolate = FALSE, interpolation_steps = 0.01,
                                   intersection_method = "min",
                                   pi_cheap = NA, pi_expensive = NA,
                                   pi_scale = 5:1, pi_calibrated = c(0.7, 0.5, 0.3, 0.1, 0)) {
@@ -35,6 +36,11 @@ psm_analysis_weighted <- function(toocheap, cheap, expensive, tooexpensive, desi
 
   if(!intersection_method %in% c("min", "max", "mean", "median")) {
     stop("intersection_method must be one of the pre-defined values: min, max, mean, median")
+  }
+
+  # input check 1d: if interpolate == TRUE, interpolation steps must be numeric vector of length 1
+  if(interpolate & (length(interpolation_steps) != 1 | !is.numeric(interpolation_steps))) {
+    stop("interpolatation_steps must be numeric value (vector of length 1)")
   }
 
   # input check 2: design must be provided as an object of class "survey.design" (which is the default export of the svydesign function in the survey package)
@@ -94,14 +100,11 @@ psm_analysis_weighted <- function(toocheap, cheap, expensive, tooexpensive, desi
     # NMS - purchase intent data must only contain values from the pre-defined scale
     if(isTRUE(NMS)) {
       # check that purchase intent data and scale have the same class (special handling for integer vs. numeric vs. double)
-      if(!identical(x = class(psm_data_w$variables$pi_cheap), y = class(pi_scale)) &
-         !(is.numeric(psm_data_w$variables$pi_cheap) & is.numeric(pi_scale))) {
-        stop("pi_cheap and pi_scale must both be numeric")
-      }
-
-      if(!identical(x = class(psm_data_w$variables$pi_expensive), y = class(pi_scale)) &
-         !(is.numeric(psm_data_w$variables$pi_expensive) & is.numeric(pi_scale))) {
-        stop("pi_expensive and pi_scale must both be numeric")
+      if(!identical(x = class(psm_data_w$variables$pi_cheap), y = class(pi_scale)) & # for pi_cheap
+         !(is.numeric(psm_data_w$variables$pi_cheap) & is.numeric(pi_scale)) & # for pi_cheap
+         !identical(x = class(psm_data_w$variables$pi_expensive), y = class(pi_scale)) & # for pi_expensive
+         !(is.numeric(psm_data_w$variables$pi_expensive) & is.numeric(pi_scale))) { # for pi_expensive
+        stop("pi_cheap, pi_expensive and pi_scale must all be numeric")
       }
 
       # check that all purchase intent data only includes values from the pre-defined scale
@@ -119,13 +122,6 @@ psm_analysis_weighted <- function(toocheap, cheap, expensive, tooexpensive, desi
       }
 
       # NMS -  calibration values must be between 0 and 1 - only warning if this is not the case...
-      if(any(pi_calibrated < 0)) {
-        warning("Some of the purchase intent calibration values are smaller than 0. It seems that this is not a probability between 0 and 1. The interpretation of the trial/revenue values is not recommended.")
-      }
-
-      if(any(pi_calibrated > 1)) {
-        warning("Some of the purchase intent calibration values are larger than 1. It seems that this is not a probability between 0 and 1. The interpretation of the trial/revenue values is not recommended.")
-      }
 
       if(any(is.nan(pi_calibrated))) {
         stop("Some of the purchase intent calibration values are not a number (NaN)")
@@ -133,6 +129,15 @@ psm_analysis_weighted <- function(toocheap, cheap, expensive, tooexpensive, desi
 
       if(any(is.infinite(pi_calibrated))) {
         stop("Some of the purchase intent calibration values are infinite (-Inf, Inf).")
+      }
+
+
+      if(any(pi_calibrated < 0)) {
+        warning("Some of the purchase intent calibration values are smaller than 0. It seems that this is not a probability between 0 and 1. The interpretation of the trial/revenue values is not recommended.")
+      }
+
+      if(any(pi_calibrated > 1)) {
+        warning("Some of the purchase intent calibration values are larger than 1. It seems that this is not a probability between 0 and 1. The interpretation of the trial/revenue values is not recommended.")
       }
     }
 
@@ -163,6 +168,16 @@ psm_analysis_weighted <- function(toocheap, cheap, expensive, tooexpensive, desi
 
     if(total_sample == invalid_cases) {
       stop("All respondents have intransitive preference structures (i.e. different from too cheap < cheap < expensive < too expensive).")
+    }
+
+
+    # if cases with invalid price preferences:
+    # store the full dataset into a new object and
+    # create a subset with only valid cases that overwrites the initial "psm_data_w" object
+    # (do NOT simply remove rows from psm_data_w, as this means that the other survey metadata in other slots of the psm_data_w does not line up: number of respondents, respondent weight, ...)
+    if (isTRUE(validate)) {
+      psm_data_w_incl_invalid <- psm_data_w
+      psm_data_w <- subset(psm_data_w_incl_invalid, psm_data_w_incl_invalid$variables$valid)
     }
 
   #-----
@@ -196,11 +211,11 @@ psm_analysis_weighted <- function(toocheap, cheap, expensive, tooexpensive, desi
   data_ecdf$ecdf_expensive <- ecdf_psm$expensive(data_ecdf$price)
   data_ecdf$ecdf_tooexpensive <- ecdf_psm$tooexpensive(data_ecdf$price)
 
-    # if interpolation is enabled: create bigger dataframe that contains all the actual price information plus fixed price steps of 0.01 between those values
+    # if interpolation is enabled: create bigger dataframe that contains all the actual price information plus fixed price steps according to interpolation steps
   if(isTRUE(interpolate)) {
     data_ecdf_smooth <- data.frame(price = seq(from = min(data_ecdf$price),
                                                to = max(data_ecdf$price),
-                                               by = 0.01))
+                                               by = abs(interpolation_steps)))
 
     # merge with existing dataframe incl. information on empirical cumulative density functions
     data_ecdf_smooth <- merge(x = data_ecdf_smooth,

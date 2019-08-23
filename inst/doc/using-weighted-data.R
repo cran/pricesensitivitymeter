@@ -5,7 +5,7 @@ knitr::opts_chunk$set(
 )
 
 ## ---- echo=TRUE----------------------------------------------------------
-set.seed(20)
+set.seed(1976)
 library(survey)
 
 # Creating dataset with price acceptance and biased gender variable

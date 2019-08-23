@@ -7,12 +7,13 @@
 <meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <meta name="author" content="Max Alletsee" />
 
-<meta name="date" content="2019-04-29" />
+<meta name="date" content="2019-08-23" />
 
 <title>Using Weighted Survey Data</title>
 
@@ -96,7 +97,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -303,7 +304,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Using Weighted Survey Data</h1>
 <h4 class="author">Max Alletsee</h4>
-<h4 class="date">2019-04-29</h4>
+<h4 class="date">2019-08-23</h4>
 
 
 
@@ -321,7 +322,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </ol>
 <p>This is of course an extreme example because the same variable (gender) is directly linked to <em>both</em> the likelihood to be included in the sample <em>and</em> the price preference.</p>
 <p>The R code below creates this example data set with the gender bias and creates the survey design object with the <em>survey</em> package (assuming simple random sampling and a population of 10k people).</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">set.seed</span>(<span class="dv">20</span>)</a>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">set.seed</span>(<span class="dv">1976</span>)</a>
 <a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(survey)</a>
 <a class="sourceLine" id="cb1-3" title="3"><span class="co">#&gt; Loading required package: grid</span></a>
 <a class="sourceLine" id="cb1-4" title="4"><span class="co">#&gt; Loading required package: Matrix</span></a>
@@ -374,14 +375,14 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb2-7" title="7"><span class="kw">summary</span>(output_weighted_psm)</a>
 <a class="sourceLine" id="cb2-8" title="8"><span class="co">#&gt; Van Westendorp Price Sensitivity Meter Analysis</span></a>
 <a class="sourceLine" id="cb2-9" title="9"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb2-10" title="10"><span class="co">#&gt; Accepted Price Range: 11.94 - 16.34 </span></a>
-<a class="sourceLine" id="cb2-11" title="11"><span class="co">#&gt; Indifference Price Point: 14.36 </span></a>
-<a class="sourceLine" id="cb2-12" title="12"><span class="co">#&gt; Optimal Price Point: 13.77 </span></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="co">#&gt; Accepted Price Range: 11.91 - 15.63 </span></a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="co">#&gt; Indifference Price Point: 13.69 </span></a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="co">#&gt; Optimal Price Point: 13.63 </span></a>
 <a class="sourceLine" id="cb2-13" title="13"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb2-14" title="14"><span class="co">#&gt; ---</span></a>
-<a class="sourceLine" id="cb2-15" title="15"><span class="co">#&gt; 226 cases with individual price preferences were analyzed (weighted data).</span></a>
+<a class="sourceLine" id="cb2-15" title="15"><span class="co">#&gt; 228 cases with individual price preferences were analyzed (weighted data).</span></a>
 <a class="sourceLine" id="cb2-16" title="16"><span class="co">#&gt; Total data set consists of 250 cases. Analysis was limited to cases with transitive price preferences.</span></a>
-<a class="sourceLine" id="cb2-17" title="17"><span class="co">#&gt; (Removed: n = 24 / 10% of data)</span></a></code></pre></div>
+<a class="sourceLine" id="cb2-17" title="17"><span class="co">#&gt; (Removed: n = 22 / 9% of data)</span></a></code></pre></div>
 </div>
 <div id="identical-results-when-weights-are-identical" class="section level2">
 <h2>Identical Results When Weights Are Identical</h2>
@@ -495,8 +496,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb5-24" title="24"><span class="kw">summary</span>(check_weighted_<span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb5-25" title="25"><span class="co">#&gt; Van Westendorp Price Sensitivity Meter Analysis</span></a>
 <a class="sourceLine" id="cb5-26" title="26"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb5-27" title="27"><span class="co">#&gt; Accepted Price Range: 7.25 - 16.82 </span></a>
-<a class="sourceLine" id="cb5-28" title="28"><span class="co">#&gt; Indifference Price Point: 12.11 </span></a>
+<a class="sourceLine" id="cb5-27" title="27"><span class="co">#&gt; Accepted Price Range: 7.25 - 17.09 </span></a>
+<a class="sourceLine" id="cb5-28" title="28"><span class="co">#&gt; Indifference Price Point: 12.08 </span></a>
 <a class="sourceLine" id="cb5-29" title="29"><span class="co">#&gt; Optimal Price Point: 8 </span></a>
 <a class="sourceLine" id="cb5-30" title="30"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb5-31" title="31"><span class="co">#&gt; ---</span></a>
@@ -545,14 +546,14 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb6-19" title="19"><span class="kw">summary</span>(test_<span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb6-20" title="20"><span class="co">#&gt; Van Westendorp Price Sensitivity Meter Analysis</span></a>
 <a class="sourceLine" id="cb6-21" title="21"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-22" title="22"><span class="co">#&gt; Accepted Price Range: NA - 16.34 </span></a>
-<a class="sourceLine" id="cb6-23" title="23"><span class="co">#&gt; Indifference Price Point: 14.36 </span></a>
+<a class="sourceLine" id="cb6-22" title="22"><span class="co">#&gt; Accepted Price Range: NA - 15.63 </span></a>
+<a class="sourceLine" id="cb6-23" title="23"><span class="co">#&gt; Indifference Price Point: 13.69 </span></a>
 <a class="sourceLine" id="cb6-24" title="24"><span class="co">#&gt; Optimal Price Point: NA </span></a>
 <a class="sourceLine" id="cb6-25" title="25"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb6-26" title="26"><span class="co">#&gt; ---</span></a>
-<a class="sourceLine" id="cb6-27" title="27"><span class="co">#&gt; 226 cases with individual price preferences were analyzed (weighted data).</span></a>
+<a class="sourceLine" id="cb6-27" title="27"><span class="co">#&gt; 228 cases with individual price preferences were analyzed (weighted data).</span></a>
 <a class="sourceLine" id="cb6-28" title="28"><span class="co">#&gt; Total data set consists of 250 cases. Analysis was limited to cases with transitive price preferences.</span></a>
-<a class="sourceLine" id="cb6-29" title="29"><span class="co">#&gt; (Removed: n = 24 / 10% of data)</span></a></code></pre></div>
+<a class="sourceLine" id="cb6-29" title="29"><span class="co">#&gt; (Removed: n = 22 / 9% of data)</span></a></code></pre></div>
 </div>
 <div id="using-weighting-in-the-newton-miller-smith-extension" class="section level2">
 <h2>Using Weighting in the Newton Miller Smith Extension</h2>
@@ -588,18 +589,18 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb7-29" title="29"><span class="kw">summary</span>(test_<span class="dv">3</span>)</a>
 <a class="sourceLine" id="cb7-30" title="30"><span class="co">#&gt; Van Westendorp Price Sensitivity Meter Analysis</span></a>
 <a class="sourceLine" id="cb7-31" title="31"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb7-32" title="32"><span class="co">#&gt; Accepted Price Range: 11.94 - 16.34 </span></a>
-<a class="sourceLine" id="cb7-33" title="33"><span class="co">#&gt; Indifference Price Point: 14.36 </span></a>
-<a class="sourceLine" id="cb7-34" title="34"><span class="co">#&gt; Optimal Price Point: 13.77 </span></a>
+<a class="sourceLine" id="cb7-32" title="32"><span class="co">#&gt; Accepted Price Range: 11.91 - 15.63 </span></a>
+<a class="sourceLine" id="cb7-33" title="33"><span class="co">#&gt; Indifference Price Point: 13.69 </span></a>
+<a class="sourceLine" id="cb7-34" title="34"><span class="co">#&gt; Optimal Price Point: 13.63 </span></a>
 <a class="sourceLine" id="cb7-35" title="35"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb7-36" title="36"><span class="co">#&gt; Newton Miller Smith Extension</span></a>
-<a class="sourceLine" id="cb7-37" title="37"><span class="co">#&gt; Price with Optimal Trial Rate: 17.5 </span></a>
-<a class="sourceLine" id="cb7-38" title="38"><span class="co">#&gt; Price with Optimal Revenue: 17.67 </span></a>
+<a class="sourceLine" id="cb7-37" title="37"><span class="co">#&gt; Price with Optimal Trial Rate: 12.16 </span></a>
+<a class="sourceLine" id="cb7-38" title="38"><span class="co">#&gt; Price with Optimal Revenue: 17.7 </span></a>
 <a class="sourceLine" id="cb7-39" title="39"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb7-40" title="40"><span class="co">#&gt; ---</span></a>
-<a class="sourceLine" id="cb7-41" title="41"><span class="co">#&gt; 226 cases with individual price preferences were analyzed (weighted data).</span></a>
+<a class="sourceLine" id="cb7-41" title="41"><span class="co">#&gt; 228 cases with individual price preferences were analyzed (weighted data).</span></a>
 <a class="sourceLine" id="cb7-42" title="42"><span class="co">#&gt; Total data set consists of 250 cases. Analysis was limited to cases with transitive price preferences.</span></a>
-<a class="sourceLine" id="cb7-43" title="43"><span class="co">#&gt; (Removed: n = 24 / 10% of data)</span></a></code></pre></div>
+<a class="sourceLine" id="cb7-43" title="43"><span class="co">#&gt; (Removed: n = 22 / 9% of data)</span></a></code></pre></div>
 </div>
 <div class="footnotes">
 <hr />
@@ -608,6 +609,9 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </ol>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
