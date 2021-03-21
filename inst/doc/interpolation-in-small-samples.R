@@ -1,10 +1,10 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 set.seed(1976)
 
 # create random variables
@@ -22,7 +22,7 @@ pricestep_expensive <- which(expensive > 14 & expensive < 16)
 expensive_alt <- expensive
 expensive_alt[pricestep_expensive] <- round(mean(expensive_alt[pricestep_expensive]), digits = 2)
 
-## ---- fig.width = 7, fig.height = 4.5------------------------------------
+## ---- fig.width = 7, fig.height = 4.5-----------------------------------------
 library(pricesensitivitymeter)
 
 # Running the analysis with price steps and without interpolation
@@ -65,7 +65,7 @@ psmplot_steps +
   coord_cartesian(xlim = c(10, 20)) +
   theme_minimal()
 
-## ---- fig.width=7, fig.height=4.5----------------------------------------
+## ---- fig.width=7, fig.height=4.5---------------------------------------------
 # Running the analysis with interpolation
 psm_interpolated <- psm_analysis(toocheap = toocheap,
                                  cheap = cheap_alt,
@@ -105,7 +105,7 @@ psmplot_interpolated +
   coord_cartesian(xlim = c(10, 20)) +
   theme_minimal()
 
-## ---- fig.width=7, fig.height=4.5, echo = FALSE--------------------------
+## ---- fig.width=7, fig.height=4.5, echo = FALSE-------------------------------
 psmplot_comparison <-  ggplot(data = psm_interpolated$data_vanwestendorp, aes(x = price)) +
   geom_line(aes(y = ecdf_not_cheap, # line: not cheap, interpolated
                 colour = "not cheap"),

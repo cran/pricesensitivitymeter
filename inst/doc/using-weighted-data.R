@@ -1,10 +1,10 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ---- echo=TRUE----------------------------------------------------------
+## ---- echo=TRUE---------------------------------------------------------------
 set.seed(1976)
 library(survey)
 
@@ -40,7 +40,7 @@ input_design <- survey::svydesign(ids = ~ 1, # no clusters
                           fpc = input_data$gender_pop, # strata size in the population
                           data = input_data) # data object used as input
 
-## ---- echo=TRUE----------------------------------------------------------
+## ---- echo=TRUE---------------------------------------------------------------
 library(pricesensitivitymeter)
 output_weighted_psm <- psm_analysis_weighted(toocheap = "tch",
                                              cheap = "ch",
@@ -49,7 +49,7 @@ output_weighted_psm <- psm_analysis_weighted(toocheap = "tch",
                                              design = input_design)
 summary(output_weighted_psm)
 
-## ---- echo=TRUE----------------------------------------------------------
+## ---- echo=TRUE---------------------------------------------------------------
 set.seed(20)
 library(survey)
 
@@ -109,13 +109,13 @@ check_unweighted_1 <- psm_analysis(toocheap = "tch",
 summary(check_weighted_1)
 summary(check_unweighted_1)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 input_data_3 <- input_data_2
 
 manipulated_men <- sample(which(input_data_2$gender == "male"), 10)
 input_data_3$ch[manipulated_men] <- input_data_3$tex[manipulated_men]
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # creating the survey design object for post-stratification based on gender
 input_design_3 <- survey::svydesign(ids = ~ 1, # no clusters
                                   probs = NULL, # hence no cluster sampling probabilities,
@@ -143,7 +143,7 @@ summary(check_weighted_2)
 summary(check_unweighted_2)
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # setting up data with NAs in "too cheap" variable
 input_data_2 <- input_data
 input_data_2$tch <- NA
@@ -165,7 +165,7 @@ test_2 <- psm_analysis_weighted(toocheap = "tch",
 summary(test_2)
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # setting up dataset with purchase intent information
 input_data_3 <- input_data
 

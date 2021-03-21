@@ -1,10 +1,10 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ---- echo=TRUE----------------------------------------------------------
+## ---- echo=TRUE---------------------------------------------------------------
 library(pricesensitivitymeter)
 set.seed(20)
 
@@ -23,7 +23,7 @@ pi_expensive <- sample(x = c(1:5), size = length(expensive),
 data.psm <- data.frame(toocheap, cheap, expensive, tooexpensive,
                        pi_cheap, pi_expensive)
 
-output.psm <- psm_analysis(toocheap = "toocheap",
+output_psm <- psm_analysis(toocheap = "toocheap",
                            cheap = "cheap",
                            expensive = "expensive",
                            tooexpensive = "tooexpensive",
@@ -32,17 +32,24 @@ output.psm <- psm_analysis(toocheap = "toocheap",
                            pi_expensive = "pi_expensive",
                            validate = TRUE)
 
-## ---- echo=TRUE----------------------------------------------------------
-output.psm$data_vanwestendorp[260, ]
+## ---- fig.width = 7, fig.height = 4.5-----------------------------------------
+library(ggplot2)
 
-## ---- fig.width = 7, fig.height = 4.5------------------------------------
+default_psm_plot <- psm_plot(output_psm)
+
+default_psm_plot + theme_minimal()
+
+## ---- echo=TRUE---------------------------------------------------------------
+output_psm$data_vanwestendorp[260, ]
+
+## ---- fig.width = 7, fig.height = 4.5-----------------------------------------
 library(ggplot2)
 
 # all plot elements without any labels 
-psmplot <-  ggplot(data = output.psm$data_vanwestendorp, aes(x = price)) +
+psmplot <-  ggplot(data = output_psm$data_vanwestendorp, aes(x = price)) +
   annotate(geom = "rect", # shaded background area for range of acceptable prices
-           xmin = output.psm$pricerange_lower,
-           xmax = output.psm$pricerange_upper,
+           xmin = output_psm$pricerange_lower,
+           xmax = output_psm$pricerange_upper,
            ymin = 0, ymax = Inf,
            fill="grey50", alpha = 0.3) +
   geom_line(aes(y = ecdf_toocheap, # line: too cheap
@@ -62,14 +69,14 @@ psmplot <-  ggplot(data = output.psm$data_vanwestendorp, aes(x = price)) +
                 linetype = "not expensive"),
             size = 1) + 
   annotate(geom = "point", # Indifference Price Point (intersection of "cheap" and "expensive")
-           x = output.psm$idp, 
-           y = output.psm$data_vanwestendorp$ecdf_not_cheap[output.psm$data_vanwestendorp$price == output.psm$idp],
+           x = output_psm$idp, 
+           y = output_psm$data_vanwestendorp$ecdf_not_cheap[output_psm$data_vanwestendorp$price == output_psm$idp],
            size = 5,
            shape = 18,
            colour = "#009E73") + 
   annotate(geom = "point", # Optimal Price Point (intersection of "too cheap" and "too expensive")
-           x = output.psm$opp, 
-           y = output.psm$data_vanwestendorp$ecdf_toocheap[output.psm$data_vanwestendorp$price == output.psm$opp],
+           x = output_psm$opp, 
+           y = output_psm$data_vanwestendorp$ecdf_toocheap[output_psm$data_vanwestendorp$price == output_psm$opp],
            size = 3,
            shape = 17,
            colour = "#009E73")
@@ -91,22 +98,28 @@ psmplot +
                                    "not cheap" = "solid",
                                    "not expensive" = "solid",
                                    "too expensive" = "dotted")) + 
-  annotate(geom = "text", # Label of Indifference Price Point
-           x = output.psm$idp + 1.5, 
-           y = output.psm$data_vanwestendorp$ecdf_not_cheap[output.psm$data_vanwestendorp$price == output.psm$idp],
-           label = paste("IDP: ", output.psm$idp)) + 
-  annotate(geom = "text", # Label of Optimal Price Point
-           x = output.psm$opp + 1.5,
-           y = output.psm$data_vanwestendorp$ecdf_toocheap[output.psm$data_vanwestendorp$price == output.psm$opp],
-           label = paste("OPP: ", output.psm$opp)) +
+  annotate(geom = "label", # Label of Indifference Price Point
+           x = output_psm$idp + 1.5, 
+           y = output_psm$data_vanwestendorp$ecdf_not_cheap[output_psm$data_vanwestendorp$price == output_psm$idp],
+           nudge_x = 1.5,
+           label = paste("IDP: ", output_psm$idp),
+           fill = "white",
+           alpha = 0.5) + 
+  annotate(geom = "label", # Label of Optimal Price Point
+           x = output_psm$opp,
+           y = output_psm$data_vanwestendorp$ecdf_toocheap[output_psm$data_vanwestendorp$price == output_psm$opp],
+           nudge_x = 1.5,
+           label = paste("OPP: ", output_psm$opp),
+           fill = "white",
+           alpha = 0.5) +
   theme_minimal()
 
-## ---- fig.width=7, fig.height=4.5----------------------------------------
+## ---- fig.width=7, fig.height=4.5---------------------------------------------
 par(cex.sub = 0.66) # reducing the font size of the subtitle
 
 # Setting up the plot: empty canvas
-plot(x = output.psm$data_vanwestendorp$price,
-     y = output.psm$data_vanwestendorp$ecdf_toocheap,
+plot(x = output_psm$data_vanwestendorp$price,
+     y = output_psm$data_vanwestendorp$ecdf_toocheap,
      type = "n",
      xlab = "",
      ylab = "")
@@ -114,34 +127,34 @@ plot(x = output.psm$data_vanwestendorp$price,
 grid() # adding gridlines
 
 # Shaded Area: Range of Accetable Prices
-rect(xleft = output.psm$pricerange_lower,
+rect(xleft = output_psm$pricerange_lower,
      ybottom = 0,
-     xright = output.psm$pricerange_upper,
+     xright = output_psm$pricerange_upper,
      ytop = 1,
      col = "grey85",
      border = 0)
 
 # adding line: too cheap
-lines(x = output.psm$data_vanwestendorp$price,
-      y = output.psm$data_vanwestendorp$ecdf_toocheap,
+lines(x = output_psm$data_vanwestendorp$price,
+      y = output_psm$data_vanwestendorp$ecdf_toocheap,
       lty = "dotted",
       col = "#009E73")
 
 # adding line: not cheap
-lines(x = output.psm$data_vanwestendorp$price,
-      y = output.psm$data_vanwestendorp$ecdf_not_cheap,
+lines(x = output_psm$data_vanwestendorp$price,
+      y = output_psm$data_vanwestendorp$ecdf_not_cheap,
       lty = "solid",
       col = "#009E73")
 
 # adding line: not expensive
-lines(x = output.psm$data_vanwestendorp$price,
-      y = output.psm$data_vanwestendorp$ecdf_not_expensive,
+lines(x = output_psm$data_vanwestendorp$price,
+      y = output_psm$data_vanwestendorp$ecdf_not_expensive,
       lty = "solid",
       col = "#D55E00")
 
 # adding line: too expensive
-lines(x = output.psm$data_vanwestendorp$price,
-      y = output.psm$data_vanwestendorp$ecdf_tooexpensive,
+lines(x = output_psm$data_vanwestendorp$price,
+      y = output_psm$data_vanwestendorp$ecdf_tooexpensive,
       lty = "dotted",
       col = "#D55E00")
 
@@ -157,27 +170,27 @@ title(sub = "Shaded area: Range of acceptable prices.\nData: Randomly generated"
 par(adj = adj.old) # restore standard (so that next main title is again centered)
 
 # adding the Indifference Price Point (intersection of "cheap" and "expensive")
-points(x = output.psm$idp,
-       y = output.psm$data_vanwestendorp$ecdf_not_cheap[which(output.psm$data_vanwestendorp$price == output.psm$idp)],
+points(x = output_psm$idp,
+       y = output_psm$data_vanwestendorp$ecdf_not_cheap[which(output_psm$data_vanwestendorp$price == output_psm$idp)],
        cex = 2,
        pch = 18,
        col = "#009E73")
 
-text(x = output.psm$idp,
-     y = output.psm$data_vanwestendorp$ecdf_cheap[which(output.psm$data_vanwestendorp$price == output.psm$idp)],
-     labels = paste("IDP:", output.psm$idp),
+text(x = output_psm$idp,
+     y = output_psm$data_vanwestendorp$ecdf_not_cheap[which(output_psm$data_vanwestendorp$price == output_psm$idp)],
+     labels = paste("IDP:", output_psm$idp),
      pos = 4)
 
 # adding the Optimal Price Point (intersection of "too cheap" and "too expensive")
-points(x = output.psm$opp,
-       y = output.psm$data_vanwestendorp$ecdf_toocheap[which(output.psm$data_vanwestendorp$price == output.psm$opp)],
+points(x = output_psm$opp,
+       y = output_psm$data_vanwestendorp$ecdf_toocheap[which(output_psm$data_vanwestendorp$price == output_psm$opp)],
        cex = 2,
        pch = 17,
        col = "#009E73")
 
-text(x = output.psm$opp,
-     y = output.psm$data_vanwestendorp$ecdf_toocheap[which(output.psm$data_vanwestendorp$price == output.psm$opp)],
-     labels = paste("OPP:", output.psm$opp),
+text(x = output_psm$opp,
+     y = output_psm$data_vanwestendorp$ecdf_toocheap[which(output_psm$data_vanwestendorp$price == output_psm$opp)],
+     labels = paste("OPP:", output_psm$opp),
      pos = 4)
 
 # adding legend
@@ -188,17 +201,17 @@ legend("bottomleft",
        col = c("#009E73", "#009E73", "#D55E00", "#D55E00"),
        cex = 0.66)
 
-## ---- fig.width=7--------------------------------------------------------
+## ---- fig.width=7-------------------------------------------------------------
 library(ggplot2)
 
 # Plot for Optimal Trial
-ggplot(data = output.psm$data_nms, aes(x = price)) + 
+ggplot(data = output_psm$data_nms, aes(x = price)) + 
   geom_line(aes(y = trial)) + # trial curve
-  geom_vline(xintercept = output.psm$price_optimal_trial,
+  geom_vline(xintercept = output_psm$price_optimal_trial,
              linetype = "dotted") + # highlighting the optimal price
-  geom_text(data = subset(output.psm$data_nms, trial == max(trial)),
+  geom_text(data = subset(output_psm$data_nms, trial == max(trial)),
             aes(x = price + 0.5, y = trial),
-            label = paste("Optimal Price:", output.psm$price_optimal_trial),
+            label = paste("Optimal Price:", output_psm$price_optimal_trial),
             hjust = 0) + # labelling the optimal price
   labs(x = "Price", y = "Likelihood to Buy (Trial)",
        title = "Price Sensitivity Meter: Price for Optimal Trial",
@@ -206,28 +219,28 @@ ggplot(data = output.psm$data_nms, aes(x = price)) +
   theme_minimal()
 
 # Plot for Optimal Revenue
-ggplot(data = output.psm$data_nms, aes(x = price)) + 
+ggplot(data = output_psm$data_nms, aes(x = price)) + 
     geom_line(aes(y = revenue)) + # revenue curve
-  geom_vline(xintercept = output.psm$price_optimal_revenue,
+  geom_vline(xintercept = output_psm$price_optimal_revenue,
              linetype = "dotted") + # highlighting the optimal price
-  geom_text(data = subset(output.psm$data_nms, revenue == max(revenue)),
+  geom_text(data = subset(output_psm$data_nms, revenue == max(revenue)),
             aes(x = price + 0.5, y = revenue),
-            label = paste("Optimal Price:", output.psm$price_optimal_revenue),
+            label = paste("Optimal Price:", output_psm$price_optimal_revenue),
             hjust = 0) + # labelling the optimal price
   labs(x = "Price", y = "Revenue",
        title = "Price Sensitivity Meter: Price for Optimal Revenue",
        caption = paste("Combined revenue for a sample of n =",
-                       output.psm$total_sample - output.psm$invalid_cases,
+                       output_psm$total_sample - output_psm$invalid_cases,
                        "respondents\nData: Randomly generated")) +
   theme_minimal()
 
-## ---- fig.width=7, fig.height=4.5----------------------------------------
+## ---- fig.width=7, fig.height=4.5---------------------------------------------
 par(cex.sub = 0.66) # reducing the font size of the subtitle
 
 # a) Plot for Optimal Trial
 # Main plot: Line, axis descriptions
-plot(x = output.psm$data_nms$price,
-     y = output.psm$data_nms$trial,
+plot(x = output_psm$data_nms$price,
+     y = output_psm$data_nms$trial,
      type = "l",
      main = "Price Sensitivity Meter: Price for Optimal Trial",
      xlab = "Price",
@@ -243,19 +256,19 @@ par(adj = adj.old) # restore standard (so that next main title is again centered
 
 
 # drawing additional line to highlight optimal price
-abline(v = output.psm$data_nms$price[which.max(output.psm$data_nms$trial)],
+abline(v = output_psm$data_nms$price[which.max(output_psm$data_nms$trial)],
        lty = "dotted")
 
 # annotating the optimal price
-text(x = output.psm$data_nms$price[which.max(output.psm$data_nms$trial)],
-     y = max(output.psm$data_nms$trial),
-     labels = paste("Optimal Price:", output.psm$price_optimal_trial),
+text(x = output_psm$data_nms$price[which.max(output_psm$data_nms$trial)],
+     y = max(output_psm$data_nms$trial),
+     labels = paste("Optimal Price:", output_psm$price_optimal_trial),
      pos = 4)
 
 # b) Plot for Optimal Revenue
 # Main plot: Line, axis descriptions
-plot(x = output.psm$data_nms$price,
-     y = output.psm$data_nms$revenue,
+plot(x = output_psm$data_nms$price,
+     y = output_psm$data_nms$revenue,
      type = "l",
      main = "Price Sensitivity Meter: Price for Optimal Revenue",
      xlab = "Price",
@@ -267,17 +280,17 @@ grid() # adding gridlines
 adj.old <- par()$adj # saving old default value (= centered)
 par(adj = 1) # setting the new default to right-align
 title(sub = paste("Combined revenue for a sample of n =",
-                 output.psm$total_sample - output.psm$invalid_cases,
+                 output_psm$total_sample - output_psm$invalid_cases,
                  "respondents\nData: Randomly generated")) # writing the actual subtitle
 par(adj = adj.old) # restore standard (so that next main title is again centered)
 
 # drawing additional line to highlight optimal price
-abline(v = output.psm$data_nms$price[which.max(output.psm$data_nms$revenue)],
+abline(v = output_psm$data_nms$price[which.max(output_psm$data_nms$revenue)],
        lty = "dotted")
 
 # annotating the optimal price
-text(x = output.psm$data_nms$price[which.max(output.psm$data_nms$revenue)],
-     y = max(output.psm$data_nms$revenue),
-     labels = paste("Optimal Price:", output.psm$price_optimal_revenue),
+text(x = output_psm$data_nms$price[which.max(output_psm$data_nms$revenue)],
+     y = max(output_psm$data_nms$revenue),
+     labels = paste("Optimal Price:", output_psm$price_optimal_revenue),
      pos = 4)
 

@@ -1,46 +1,64 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Max Alletsee" />
 
-<meta name="date" content="2019-08-23" />
+<meta name="date" content="2021-03-21" />
 
 <title>Interpolation in Small Samples</title>
 
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -49,9 +67,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -108,189 +126,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#header {
-text-align: center;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
-table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
-}
-blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
-}
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
-}
-dl {
-margin-left: 0;
-}
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
-}
-dl dt {
-font-weight: bold;
-}
-ul {
-margin-top: 0;
-}
-ul li {
-list-style: circle outside;
-}
-ul ul {
-margin-bottom: 0;
-}
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
-}
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
 
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
-</style>
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
 
 
 
@@ -304,119 +141,119 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Interpolation in Small Samples</h1>
 <h4 class="author">Max Alletsee</h4>
-<h4 class="date">2019-08-23</h4>
+<h4 class="date">2021-03-21</h4>
 
 
 
-<p>Sparse price information can become a problem when running Price Sensitivity Meter Analyses, particularly in small samples. In order to deal with this issue, the <em>pricesensitivitymeter</em> package has an option <em>interpolate</em> to approximate values on the price curves for all values where the actual information from respondents is missing.</p>
-<p>This vignette illustrates the underlying problem and explains how the <em>interpolate</em> argument provides a solution.</p>
+<p>Sparse price information can become a problem when running Price Sensitivity Meter Analyses, particularly in small samples. In order to deal with this issue, the <em>pricesensitivitymeter</em> package has an option <code>interpolate</code> to approximate values on the price curves for all values where the actual information from respondents is missing.</p>
+<p>This vignette illustrates the underlying problem and explains how the <code>interpolate</code> argument provides a solution.</p>
 <div id="illustrating-the-problem" class="section level2">
 <h2>Illustrating the Problem</h2>
 <p>Consider an example with the following price information.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">set.seed</span>(<span class="dv">1976</span>)</a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="co"># create random variables</span></a>
-<a class="sourceLine" id="cb1-4" title="4">toocheap &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">round</span>(<span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="dv">50</span>, <span class="dt">mean =</span> <span class="dv">8</span>, <span class="dt">sd =</span> <span class="fl">1.5</span>), <span class="dt">digits =</span> <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb1-5" title="5">tooexpensive &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">round</span>(<span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="dv">50</span>, <span class="dt">mean =</span> <span class="dv">20</span>, <span class="dt">sd =</span> <span class="dv">1</span>), <span class="dt">digits =</span> <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb1-6" title="6">cheap &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">round</span>(<span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="dv">50</span>, <span class="dt">mean =</span> <span class="dv">15</span>, <span class="dt">sd =</span> <span class="dv">3</span>), <span class="dt">digits =</span> <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb1-7" title="7">expensive &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">round</span>(<span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="dv">50</span>, <span class="dt">mean =</span> <span class="dv">16</span>, <span class="dt">sd =</span> <span class="dv">3</span>), <span class="dt">digits =</span> <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb1-8" title="8"></a>
-<a class="sourceLine" id="cb1-9" title="9"><span class="co"># setting up alternative &quot;cheap&quot;/&quot;expensive&quot; variables with a price step</span></a>
-<a class="sourceLine" id="cb1-10" title="10">pricestep_cheap &lt;-<span class="st"> </span><span class="kw">which</span>(cheap <span class="op">&gt;</span><span class="st"> </span><span class="fl">14.25</span> <span class="op">&amp;</span><span class="st"> </span>cheap <span class="op">&lt;</span><span class="st"> </span><span class="fl">17.5</span>)</a>
-<a class="sourceLine" id="cb1-11" title="11">cheap_alt &lt;-<span class="st"> </span>cheap</a>
-<a class="sourceLine" id="cb1-12" title="12">cheap_alt[pricestep_cheap] &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">mean</span>(cheap_alt[pricestep_cheap]), <span class="dt">digits =</span> <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb1-13" title="13"></a>
-<a class="sourceLine" id="cb1-14" title="14">pricestep_expensive &lt;-<span class="st"> </span><span class="kw">which</span>(expensive <span class="op">&gt;</span><span class="st"> </span><span class="dv">14</span> <span class="op">&amp;</span><span class="st"> </span>expensive <span class="op">&lt;</span><span class="st"> </span><span class="dv">16</span>)</a>
-<a class="sourceLine" id="cb1-15" title="15">expensive_alt &lt;-<span class="st"> </span>expensive</a>
-<a class="sourceLine" id="cb1-16" title="16">expensive_alt[pricestep_expensive] &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">mean</span>(expensive_alt[pricestep_expensive]), <span class="dt">digits =</span> <span class="dv">2</span>)</a></code></pre></div>
-<p>When we run a Price Sensitivity Meter Analysis on the data and visualize it, we get the following result. (The plot is slightly simplified: It does not show the “too cheap” and “too expensive curves”, as they are not relevant for the example. Moreover, it is slightly zoomed in.)</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">library</span>(pricesensitivitymeter)</a>
-<a class="sourceLine" id="cb2-2" title="2"></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="co"># Running the analysis with price steps and without interpolation</span></a>
-<a class="sourceLine" id="cb2-4" title="4">psm_steps &lt;-<span class="st"> </span><span class="kw">psm_analysis</span>(<span class="dt">toocheap =</span> toocheap,</a>
-<a class="sourceLine" id="cb2-5" title="5">                          <span class="dt">cheap =</span> cheap_alt,</a>
-<a class="sourceLine" id="cb2-6" title="6">                          <span class="dt">expensive =</span> expensive_alt,</a>
-<a class="sourceLine" id="cb2-7" title="7">                          <span class="dt">tooexpensive =</span> tooexpensive,</a>
-<a class="sourceLine" id="cb2-8" title="8">                          <span class="dt">validate =</span> <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb2-9" title="9">                          <span class="dt">interpolate =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb2-10" title="10"></a>
-<a class="sourceLine" id="cb2-11" title="11"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb2-12" title="12"></a>
-<a class="sourceLine" id="cb2-13" title="13"><span class="co"># Plot with price steps</span></a>
-<a class="sourceLine" id="cb2-14" title="14">psmplot_steps &lt;-<span class="st">  </span><span class="kw">ggplot</span>(<span class="dt">data =</span> psm_steps<span class="op">$</span>data_vanwestendorp, <span class="kw">aes</span>(<span class="dt">x =</span> price)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb2-15" title="15"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> ecdf_not_cheap, <span class="co"># line: not cheap</span></a>
-<a class="sourceLine" id="cb2-16" title="16">                <span class="dt">colour =</span> <span class="st">&quot;not cheap&quot;</span>),</a>
-<a class="sourceLine" id="cb2-17" title="17">            <span class="dt">size =</span> <span class="dv">1</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb2-18" title="18"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> ecdf_not_expensive, <span class="co"># line: not expensive</span></a>
-<a class="sourceLine" id="cb2-19" title="19">                <span class="dt">colour =</span> <span class="st">&quot;not expensive&quot;</span>),</a>
-<a class="sourceLine" id="cb2-20" title="20">            <span class="dt">size =</span> <span class="dv">1</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb2-21" title="21"><span class="st">  </span><span class="kw">geom_rug</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb2-22" title="22"><span class="st">  </span><span class="kw">annotate</span>(<span class="dt">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="co"># Indifference Price Point (intersection of &quot;not cheap&quot; and &quot;not expensive&quot;)</span></a>
-<a class="sourceLine" id="cb2-23" title="23">           <span class="dt">x =</span> psm_steps<span class="op">$</span>idp,</a>
-<a class="sourceLine" id="cb2-24" title="24">           <span class="dt">y =</span> psm_steps<span class="op">$</span>data_vanwestendorp<span class="op">$</span>ecdf_not_expensive[psm_steps<span class="op">$</span>data_vanwestendorp<span class="op">$</span>price <span class="op">==</span><span class="st"> </span>psm_steps<span class="op">$</span>idp],</a>
-<a class="sourceLine" id="cb2-25" title="25">           <span class="dt">size =</span> <span class="dv">5</span>,</a>
-<a class="sourceLine" id="cb2-26" title="26">           <span class="dt">shape =</span> <span class="dv">18</span>,</a>
-<a class="sourceLine" id="cb2-27" title="27">           <span class="dt">colour =</span> <span class="st">&quot;#D55E00&quot;</span>)</a>
-<a class="sourceLine" id="cb2-28" title="28"></a>
-<a class="sourceLine" id="cb2-29" title="29">psmplot_steps <span class="op">+</span></a>
-<a class="sourceLine" id="cb2-30" title="30"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Price&quot;</span>,</a>
-<a class="sourceLine" id="cb2-31" title="31">       <span class="dt">y =</span> <span class="st">&quot;Share of Respondents (0-1)&quot;</span>,</a>
-<a class="sourceLine" id="cb2-32" title="32">       <span class="dt">title =</span> <span class="st">&quot;Price Sensitivity Meter Plot (without interpolation)&quot;</span>)  <span class="op">+</span></a>
-<a class="sourceLine" id="cb2-33" title="33"><span class="st">  </span><span class="kw">scale_colour_manual</span>(<span class="dt">name =</span> <span class="st">&quot;Legend&quot;</span>,</a>
-<a class="sourceLine" id="cb2-34" title="34">                      <span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;not cheap&quot;</span> =<span class="st"> &quot;#009E73&quot;</span>,</a>
-<a class="sourceLine" id="cb2-35" title="35">                                 <span class="st">&quot;not expensive&quot;</span> =<span class="st"> &quot;#D55E00&quot;</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb2-36" title="36"><span class="st">  </span><span class="kw">annotate</span>(<span class="dt">geom =</span> <span class="st">&quot;text&quot;</span>, <span class="co"># Label of Indifference Price Point</span></a>
-<a class="sourceLine" id="cb2-37" title="37">           <span class="dt">x =</span> psm_steps<span class="op">$</span>idp <span class="op">+</span><span class="st"> </span><span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb2-38" title="38">           <span class="dt">y =</span> psm_steps<span class="op">$</span>data_vanwestendorp<span class="op">$</span>ecdf_not_expensive[psm_steps<span class="op">$</span>data_vanwestendorp<span class="op">$</span>price <span class="op">==</span><span class="st"> </span>psm_steps<span class="op">$</span>idp] <span class="op">-</span><span class="st"> </span><span class="fl">0.05</span>,</a>
-<a class="sourceLine" id="cb2-39" title="39">           <span class="dt">label =</span> <span class="kw">paste</span>(<span class="st">&quot;IDP: &quot;</span>, psm_steps<span class="op">$</span>idp)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb2-40" title="40"><span class="st">  </span><span class="kw">coord_cartesian</span>(<span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">10</span>, <span class="dv">20</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb2-41" title="41"><span class="st">  </span><span class="kw">theme_minimal</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1976</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># create random variables</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>toocheap <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">8</span>, <span class="at">sd =</span> <span class="fl">1.5</span>), <span class="at">digits =</span> <span class="dv">2</span>))</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>tooexpensive <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">20</span>, <span class="at">sd =</span> <span class="dv">1</span>), <span class="at">digits =</span> <span class="dv">2</span>))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>cheap <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">15</span>, <span class="at">sd =</span> <span class="dv">3</span>), <span class="at">digits =</span> <span class="dv">2</span>))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>expensive <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">16</span>, <span class="at">sd =</span> <span class="dv">3</span>), <span class="at">digits =</span> <span class="dv">2</span>))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># setting up alternative &quot;cheap&quot;/&quot;expensive&quot; variables with a price step</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>pricestep_cheap <span class="ot">&lt;-</span> <span class="fu">which</span>(cheap <span class="sc">&gt;</span> <span class="fl">14.25</span> <span class="sc">&amp;</span> cheap <span class="sc">&lt;</span> <span class="fl">17.5</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>cheap_alt <span class="ot">&lt;-</span> cheap</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>cheap_alt[pricestep_cheap] <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">mean</span>(cheap_alt[pricestep_cheap]), <span class="at">digits =</span> <span class="dv">2</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>pricestep_expensive <span class="ot">&lt;-</span> <span class="fu">which</span>(expensive <span class="sc">&gt;</span> <span class="dv">14</span> <span class="sc">&amp;</span> expensive <span class="sc">&lt;</span> <span class="dv">16</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>expensive_alt <span class="ot">&lt;-</span> expensive</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>expensive_alt[pricestep_expensive] <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">mean</span>(expensive_alt[pricestep_expensive]), <span class="at">digits =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p>When we run a Price Sensitivity Meter Analysis on the data and visualize it, we get the following result. (The plot is slightly simplified: It does not show the “too cheap” and “too expensive” curves, as they are not relevant for the example. Moreover, it is slightly zoomed in.)</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pricesensitivitymeter)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Running the analysis with price steps and without interpolation</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>psm_steps <span class="ot">&lt;-</span> <span class="fu">psm_analysis</span>(<span class="at">toocheap =</span> toocheap,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">cheap =</span> cheap_alt,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                          <span class="at">expensive =</span> expensive_alt,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">tooexpensive =</span> tooexpensive,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">validate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">interpolate =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot with price steps</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>psmplot_steps <span class="ot">&lt;-</span>  <span class="fu">ggplot</span>(<span class="at">data =</span> psm_steps<span class="sc">$</span>data_vanwestendorp, <span class="fu">aes</span>(<span class="at">x =</span> price)) <span class="sc">+</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> ecdf_not_cheap, <span class="co"># line: not cheap</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">&quot;not cheap&quot;</span>),</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> ecdf_not_expensive, <span class="co"># line: not expensive</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">&quot;not expensive&quot;</span>),</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>() <span class="sc">+</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="co"># Indifference Price Point (intersection of &quot;not cheap&quot; and &quot;not expensive&quot;)</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> psm_steps<span class="sc">$</span>idp,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> psm_steps<span class="sc">$</span>data_vanwestendorp<span class="sc">$</span>ecdf_not_expensive[psm_steps<span class="sc">$</span>data_vanwestendorp<span class="sc">$</span>price <span class="sc">==</span> psm_steps<span class="sc">$</span>idp],</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>           <span class="at">size =</span> <span class="dv">5</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>           <span class="at">shape =</span> <span class="dv">18</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>           <span class="at">colour =</span> <span class="st">&quot;#D55E00&quot;</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>psmplot_steps <span class="sc">+</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Price&quot;</span>,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Share of Respondents (0-1)&quot;</span>,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Price Sensitivity Meter Plot (without interpolation)&quot;</span>)  <span class="sc">+</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">name =</span> <span class="st">&quot;Legend&quot;</span>,</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>                      <span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;not cheap&quot;</span> <span class="ot">=</span> <span class="st">&quot;#009E73&quot;</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">&quot;not expensive&quot;</span> <span class="ot">=</span> <span class="st">&quot;#D55E00&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">&quot;text&quot;</span>, <span class="co"># Label of Indifference Price Point</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> psm_steps<span class="sc">$</span>idp <span class="sc">+</span> <span class="dv">1</span>,</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> psm_steps<span class="sc">$</span>data_vanwestendorp<span class="sc">$</span>ecdf_not_expensive[psm_steps<span class="sc">$</span>data_vanwestendorp<span class="sc">$</span>price <span class="sc">==</span> psm_steps<span class="sc">$</span>idp] <span class="sc">-</span> <span class="fl">0.05</span>,</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste</span>(<span class="st">&quot;IDP: &quot;</span>, psm_steps<span class="sc">$</span>idp)) <span class="sc">+</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
-<p>The Indifference Price Point (IDP) in this plot is not at the actual intersection of the “not cheap” and the “not expensive” curve. This is due to the data structure: We have sparse information for prices between 14 and 15. This can be seen in the rug plot close to the x-axis: Each vertical line indicates a price for which we have information in our data - however, there is a considerable gap around 14-15 (caused by the initial data manipulation that added price steps). The combination of price steps (as can be seen in the steep slope of the curves in this area) and sparse data points creates this problem. If the <em>interpolate</em> argument is set to <em>FALSE</em>, the <em>psm_analysis</em> function uses the first price for which the “not expensive” curve is higher than the “not cheap” curve, which is the case for a price of 15.13 in our example.</p>
-<p>A larger sample size is usually sufficient to overcome this issue. However, this might not always be possible. Therefore, the <em>psm_analysis</em> function has an optional argument which helps to interpolate the pricing curve in cases of sparse information.</p>
+<p>The Indifference Price Point (IDP) in this plot is not at the actual intersection of the “not cheap” and the “not expensive” curve. This is due to the data structure: We have sparse information for prices between 14 and 15. This can be seen in the rug plot close to the x-axis: Each vertical line indicates a price for which we have information in our data - however, there is a considerable gap around 14-15 (caused by the initial data manipulation that added price steps). The combination of price steps (as can be seen in the steep slope of the curves in this area) and sparse data points creates this problem. If the <code>interpolate</code> argument is set to <code>FALSE</code>, the <code>psm_analysis()</code> function uses the first price for which the “not expensive” curve is higher than the “not cheap” curve, which is the case for a price of 15.13 in our example.</p>
+<p>A larger sample size is usually sufficient to overcome this issue. However, this might not always be possible. Therefore, the <code>psm_analysis()</code> function has an optional argument which helps to interpolate the pricing curve in cases of sparse information.</p>
 </div>
 <div id="using-the-interpolate-argument" class="section level2">
-<h2>Using the <em>interpolate</em> Argument</h2>
-<p>The <em>psm_analysis</em> function includes an optional argument <em>interpolate</em>. If this argument is set to <em>TRUE</em>, the function uses linear interpolation to estimate the price curves between the price points that are provided by the respondents. Consider an easy example: If the “not cheap” function is at 20% for a price of 5.99 and at 21% for a price of 6.01, the function would estimate that it is at 20.5% for a price of 6.00. The function uses price steps as defined in the <em>interpolation_steps</em> argument, which has a default value of 0.01.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
-<p>Below are the results for the same data when the <em>interpolate</em> function is set to <em>TRUE</em>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># Running the analysis with interpolation</span></a>
-<a class="sourceLine" id="cb3-2" title="2">psm_interpolated &lt;-<span class="st"> </span><span class="kw">psm_analysis</span>(<span class="dt">toocheap =</span> toocheap,</a>
-<a class="sourceLine" id="cb3-3" title="3">                                 <span class="dt">cheap =</span> cheap_alt,</a>
-<a class="sourceLine" id="cb3-4" title="4">                                 <span class="dt">expensive =</span> expensive_alt,</a>
-<a class="sourceLine" id="cb3-5" title="5">                                 <span class="dt">tooexpensive =</span> tooexpensive,</a>
-<a class="sourceLine" id="cb3-6" title="6">                                 <span class="dt">validate =</span> <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb3-7" title="7">                                 <span class="dt">interpolate =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb3-8" title="8"></a>
-<a class="sourceLine" id="cb3-9" title="9"><span class="co"># Plot with interpolated price steps</span></a>
-<a class="sourceLine" id="cb3-10" title="10"></a>
-<a class="sourceLine" id="cb3-11" title="11">psmplot_interpolated &lt;-<span class="st">  </span><span class="kw">ggplot</span>(<span class="dt">data =</span> psm_interpolated<span class="op">$</span>data_vanwestendorp, <span class="kw">aes</span>(<span class="dt">x =</span> price)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb3-12" title="12"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> ecdf_not_cheap, <span class="co"># line: not cheap</span></a>
-<a class="sourceLine" id="cb3-13" title="13">                <span class="dt">colour =</span> <span class="st">&quot;not cheap&quot;</span>),</a>
-<a class="sourceLine" id="cb3-14" title="14">            <span class="dt">size =</span> <span class="dv">1</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb3-15" title="15"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> ecdf_not_expensive, <span class="co"># line: not expensive</span></a>
-<a class="sourceLine" id="cb3-16" title="16">                <span class="dt">colour =</span> <span class="st">&quot;not expensive&quot;</span>),</a>
-<a class="sourceLine" id="cb3-17" title="17">            <span class="dt">size =</span> <span class="dv">1</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb3-18" title="18"><span class="st">  </span><span class="kw">geom_rug</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb3-19" title="19"><span class="st">  </span><span class="kw">annotate</span>(<span class="dt">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="co"># Indifference Price Point (intersection of &quot;cheap&quot; and &quot;expensive&quot;)</span></a>
-<a class="sourceLine" id="cb3-20" title="20">           <span class="dt">x =</span> psm_interpolated<span class="op">$</span>idp,</a>
-<a class="sourceLine" id="cb3-21" title="21">           <span class="dt">y =</span> psm_interpolated<span class="op">$</span>data_vanwestendorp<span class="op">$</span>ecdf_not_expensive[psm_interpolated<span class="op">$</span>data_vanwestendorp<span class="op">$</span>price <span class="op">==</span><span class="st"> </span>psm_interpolated<span class="op">$</span>idp],</a>
-<a class="sourceLine" id="cb3-22" title="22">           <span class="dt">size =</span> <span class="dv">5</span>,</a>
-<a class="sourceLine" id="cb3-23" title="23">           <span class="dt">shape =</span> <span class="dv">18</span>,</a>
-<a class="sourceLine" id="cb3-24" title="24">           <span class="dt">colour =</span> <span class="st">&quot;#D55E00&quot;</span>)</a>
-<a class="sourceLine" id="cb3-25" title="25"></a>
-<a class="sourceLine" id="cb3-26" title="26">psmplot_interpolated <span class="op">+</span></a>
-<a class="sourceLine" id="cb3-27" title="27"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Price&quot;</span>,</a>
-<a class="sourceLine" id="cb3-28" title="28">       <span class="dt">y =</span> <span class="st">&quot;Share of Respondents (0-1)&quot;</span>,</a>
-<a class="sourceLine" id="cb3-29" title="29">       <span class="dt">title =</span> <span class="st">&quot;Price Sensitivity Meter Plot (with interpolation)&quot;</span>)  <span class="op">+</span></a>
-<a class="sourceLine" id="cb3-30" title="30"><span class="st">  </span><span class="kw">scale_colour_manual</span>(<span class="dt">name =</span> <span class="st">&quot;Legend&quot;</span>,</a>
-<a class="sourceLine" id="cb3-31" title="31">                      <span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;not cheap&quot;</span> =<span class="st"> &quot;#009E73&quot;</span>,</a>
-<a class="sourceLine" id="cb3-32" title="32">                                 <span class="st">&quot;not expensive&quot;</span> =<span class="st"> &quot;#D55E00&quot;</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb3-33" title="33"><span class="st">  </span><span class="kw">annotate</span>(<span class="dt">geom =</span> <span class="st">&quot;text&quot;</span>, <span class="co"># Label of Indifference Price Point</span></a>
-<a class="sourceLine" id="cb3-34" title="34">           <span class="dt">x =</span> psm_interpolated<span class="op">$</span>idp <span class="op">+</span><span class="st"> </span><span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb3-35" title="35">           <span class="dt">y =</span> psm_interpolated<span class="op">$</span>data_vanwestendorp<span class="op">$</span>ecdf_not_expensive[psm_interpolated<span class="op">$</span>data_vanwestendorp<span class="op">$</span>price <span class="op">==</span><span class="st"> </span>psm_interpolated<span class="op">$</span>idp],</a>
-<a class="sourceLine" id="cb3-36" title="36">           <span class="dt">label =</span> <span class="kw">paste</span>(<span class="st">&quot;IDP: &quot;</span>, psm_interpolated<span class="op">$</span>idp)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb3-37" title="37"><span class="st">  </span><span class="kw">coord_cartesian</span>(<span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">10</span>, <span class="dv">20</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb3-38" title="38"><span class="st">  </span><span class="kw">theme_minimal</span>()</a></code></pre></div>
+<h2>Using the <code>interpolate</code> Argument</h2>
+<p>The <code>psm_analysis</code> function includes an optional argument <code>interpolate</code>. If this argument is set to <code>TRUE</code>, the function uses linear interpolation to estimate the price curves between the price points that are provided by the respondents. Consider an easy example: If the “not cheap” function is at 20% for a price of 5.99 and at 21% for a price of 6.01, the function would estimate that it is at 20.5% for a price of 6.00. The function uses price steps as defined in the <code>interpolation_steps</code> argument, which has a default value of 0.01.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<p>Below are the results for the same data when the <code>interpolate</code> function is set to <code>TRUE</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Running the analysis with interpolation</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>psm_interpolated <span class="ot">&lt;-</span> <span class="fu">psm_analysis</span>(<span class="at">toocheap =</span> toocheap,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">cheap =</span> cheap_alt,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">expensive =</span> expensive_alt,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">tooexpensive =</span> tooexpensive,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">validate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">interpolate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot with interpolated price steps</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>psmplot_interpolated <span class="ot">&lt;-</span>  <span class="fu">ggplot</span>(<span class="at">data =</span> psm_interpolated<span class="sc">$</span>data_vanwestendorp, <span class="fu">aes</span>(<span class="at">x =</span> price)) <span class="sc">+</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> ecdf_not_cheap, <span class="co"># line: not cheap</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">&quot;not cheap&quot;</span>),</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> ecdf_not_expensive, <span class="co"># line: not expensive</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>                <span class="at">colour =</span> <span class="st">&quot;not expensive&quot;</span>),</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>() <span class="sc">+</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="co"># Indifference Price Point (intersection of &quot;cheap&quot; and &quot;expensive&quot;)</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> psm_interpolated<span class="sc">$</span>idp,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> psm_interpolated<span class="sc">$</span>data_vanwestendorp<span class="sc">$</span>ecdf_not_expensive[psm_interpolated<span class="sc">$</span>data_vanwestendorp<span class="sc">$</span>price <span class="sc">==</span> psm_interpolated<span class="sc">$</span>idp],</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>           <span class="at">size =</span> <span class="dv">5</span>,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">shape =</span> <span class="dv">18</span>,</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>           <span class="at">colour =</span> <span class="st">&quot;#D55E00&quot;</span>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>psmplot_interpolated <span class="sc">+</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Price&quot;</span>,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Share of Respondents (0-1)&quot;</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Price Sensitivity Meter Plot (with interpolation)&quot;</span>)  <span class="sc">+</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">name =</span> <span class="st">&quot;Legend&quot;</span>,</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>                      <span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;not cheap&quot;</span> <span class="ot">=</span> <span class="st">&quot;#009E73&quot;</span>,</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">&quot;not expensive&quot;</span> <span class="ot">=</span> <span class="st">&quot;#D55E00&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">&quot;text&quot;</span>, <span class="co"># Label of Indifference Price Point</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> psm_interpolated<span class="sc">$</span>idp <span class="sc">+</span> <span class="dv">1</span>,</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> psm_interpolated<span class="sc">$</span>data_vanwestendorp<span class="sc">$</span>ecdf_not_expensive[psm_interpolated<span class="sc">$</span>data_vanwestendorp<span class="sc">$</span>price <span class="sc">==</span> psm_interpolated<span class="sc">$</span>idp],</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste</span>(<span class="st">&quot;IDP: &quot;</span>, psm_interpolated<span class="sc">$</span>idp)) <span class="sc">+</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>The rug plot demonstrates now that the data includes information for more pricing steps due to the interpolation.</p>
 <p>The following plot demonstrates the close relationship between the original data and the interpolated data: The thicker semi-transparent line shows the interpolated values of the “not cheap” and “not expensive” curves. The thinner solid lines are the original data.</p>
@@ -425,7 +262,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>It may make sense to set a higher value when this subdivision is not practical in the currency - e.g. for Japanese Yen or Chilean Pesos - or when the product for which the price is assessed is quite expensive. In both cases, a reduced granularity will not affect the results, but increase the computational efficiency.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>It may make sense to set a higher value when this subdivision is not practical in the currency - e.g. for Japanese Yen or Chilean Pesos - or when the product for which the price is assessed is quite expensive. In both cases, a reduced granularity will not affect the results, but increase the computational efficiency.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

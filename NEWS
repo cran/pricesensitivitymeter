@@ -1,6 +1,25 @@
 NEWS pricesensitivitymeter
 ==========================================================================
 
+version 1.2.1 (Release date: 2021-03-21)
+==============
+
+Changes:
+* fixes URL in package description
+* fixes date formatting in DESCRIPTION
+
+version 1.2 (Release date: 2021-03-21)
+==============
+
+Changes:
+* new function psm_plot() for automatic plotting of the result
+* package now also supports input in tibble format
+* fix in plotting vignette: fix position of indifference price point
+* fixes in vignette formatting to emphasize function names
+* change of Github URLs due to change of Github username
+* fix of external URLs that have changed
+* housekeeping: re-factoring code
+
 version 1.1.1 (Release date: 2019-08-23)
 ==============
 Changes:
