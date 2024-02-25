@@ -17,7 +17,7 @@ input_data <- data.frame(tch = round(rnorm(n = 250, mean = 8, sd = 0.5), digits 
                          gender = sample(x = c("male", "female"),
                                          size = 250,
                                          replace = TRUE,
-                                         prob = c(2/3, 1/3)))
+                                         prob = c(2 / 3, 1 / 3)))
 
 
 input_data$tch[input_data$gender == "female"] <- input_data$tch[input_data$gender == "female"] * 2.5
@@ -87,8 +87,8 @@ psm_results_w3 <- psm_analysis_weighted(toocheap = "tch",
 #----
 
 test_that("Data Output: Length of Output Object", {
-  expect_length(psm_results_w1, 12)
-  expect_length(psm_results_w2, 12)
+  expect_length(psm_results_w1, 13)
+  expect_length(psm_results_w2, 13)
 })
 
 test_that("Data Output: Class of Output Object", {
@@ -125,7 +125,7 @@ test_that("Data Output: Numeric Data in Matrices", {
 
 
 
-test_that("Data Output: Output Object Structure (Analysis without NSM)", {
+test_that("Data Output: Output Object Structure (Analysis without NMS)", {
   expect_true(is.logical(psm_results_w1$validated))
   expect_length(psm_results_w1$validated, 1)
 
@@ -157,13 +157,13 @@ test_that("Data Output: Output Object Structure (Analysis without NSM)", {
   expect_false(is.nan(psm_results_w1$opp))
   expect_length(psm_results_w1$opp, 1)
 
-  expect_true(is.logical(psm_results_w1$NMS))
-  expect_false(is.nan(psm_results_w1$NMS))
-  expect_length(psm_results_w1$NMS, 1)
+  expect_true(is.logical(psm_results_w1$nms))
+  expect_false(is.nan(psm_results_w1$nms))
+  expect_length(psm_results_w1$nms, 1)
 })
 
 
-test_that("Data Output: Output Object Structure (Analysis with NSM)", {
+test_that("Data Output: Output Object Structure (Analysis with NMS)", {
 expect_true(is.logical(psm_results_w3$validated))
 expect_length(psm_results_w3$validated, 1)
 
@@ -191,16 +191,16 @@ expect_true(is.numeric(psm_results_w3$opp))
 expect_false(is.nan(psm_results_w3$opp))
 expect_length(psm_results_w3$opp, 1)
 
-expect_true(is.logical(psm_results_w3$NMS))
-expect_false(is.nan(psm_results_w3$NMS))
-expect_length(psm_results_w3$NMS, 1)
+expect_true(is.logical(psm_results_w3$nms))
+expect_false(is.nan(psm_results_w3$nms))
+expect_length(psm_results_w3$nms, 1)
 
 expect_true(is.numeric(psm_results_w3$pi_scale$pi_calibrated))
 expect_false(unique(is.nan(psm_results_w3$pi_scale$pi_calibrated)))
 
-expect_true(is.numeric(psm_results_w3$price_optimal_trial))
-expect_false(is.nan(psm_results_w3$price_optimal_trial))
-expect_length(psm_results_w3$price_optimal_trial, 1)
+expect_true(is.numeric(psm_results_w3$price_optimal_reach))
+expect_false(is.nan(psm_results_w3$price_optimal_reach))
+expect_length(psm_results_w3$price_optimal_reach, 1)
 
 expect_true(is.numeric(psm_results_w3$price_optimal_revenue))
 expect_false(is.nan(psm_results_w3$price_optimal_revenue))
@@ -213,8 +213,8 @@ expect_length(psm_results_w3$price_optimal_revenue, 1)
 #----
 
 test_that("Data Output: NMS correctly (not) included in output", {
-  expect_false(psm_results_w1$NMS)
-  expect_true(psm_results_w3$NMS)
+  expect_false(psm_results_w1$nms)
+  expect_true(psm_results_w3$nms)
 })
 
 test_that("Data Output: All prices included in the empirical cumulative density function data", {
@@ -252,8 +252,8 @@ test_that("Data Output - Plausibility: Price estimations must be within range of
   expect_gte(psm_results_w1$opp, min(psm_results_w1$data_vanwestendorp$price))
   expect_lte(psm_results_w1$opp, max(psm_results_w1$data_vanwestendorp$price))
 
-  expect_gte(psm_results_w3$price_optimal_trial, min(psm_results_w3$data_vanwestendorp$price))
-  expect_lte(psm_results_w3$price_optimal_trial, max(psm_results_w3$data_vanwestendorp$price))
+  expect_gte(psm_results_w3$price_optimal_reach, min(psm_results_w3$data_vanwestendorp$price))
+  expect_lte(psm_results_w3$price_optimal_reach, max(psm_results_w3$data_vanwestendorp$price))
 
   expect_gte(psm_results_w3$price_optimal_revenue, min(psm_results_w3$data_vanwestendorp$price))
   expect_lte(psm_results_w3$price_optimal_revenue, max(psm_results_w3$data_vanwestendorp$price))

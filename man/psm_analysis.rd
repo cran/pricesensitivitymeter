@@ -22,9 +22,12 @@ psm_analysis(
   interpolate = FALSE,
   interpolation_steps = 0.01,
   intersection_method = "min",
+  acceptable_range = "original",
   pi_cheap = NA, pi_expensive = NA,
   pi_scale = 5:1,
-  pi_calibrated = c(0.7, 0.5, 0.3, 0.1, 0))
+  pi_calibrated = c(0.7, 0.5, 0.3, 0.1, 0),
+  pi_calibrated_toocheap = 0, pi_calibrated_tooexpensive = 0
+  )
 }
 
 \arguments{
@@ -76,6 +79,27 @@ psm_analysis(
   highest possible prices, "mean" calculates the mean among
   all intersections and "median" uses the median of all
   possible intersections}
+  \item{acceptable_range}{"original" (default) or "narrower".
+  Defines which intersection is used to calculate the point of
+  marginal cheapness and point of marginal expensiveness, which
+  together form the range of acceptable prices. "original"
+  uses the definition provided in van Westendorp's paper:
+  The lower end of the price range (point of marginal
+  cheapness) is defined as the intersection of "too cheap"
+  and the inverse of the "cheap" curve. The upper end of the
+  price range (point of marginal expensiveness) is defined
+  as the intersection of "too expensive" and the inverse of
+  the "expensive" curve. Alternatively, it is possible to use
+  a "narrower" definition which is applied by some market
+  research companies. Here, the lower end of the price range
+  is defined as the intersection of the "expensive" and the
+  "too cheap" curves and the upper end of the price range is
+  defined as the intersection of the "too expensive" and the
+  "cheap" curves. This leads to a narrower range of acceptable
+  prices. Note that it is possible that the optimal price
+  according to the Newton/Miller/Smith extension is higher
+  than the upper end of the acceptable price range in the
+  "narrower" definition.}
   \item{pi_cheap, pi_expensive}{Only required for the Newton
   Miller Smith extension. If \code{data} argument is provided:
   names of the variables in the data.frame/matrix/tibble that
@@ -95,6 +119,12 @@ psm_analysis(
   purchase intent scale, 50\% for the second best value,
   30\% for the third best value (middle of the scale), 10\%
   for the fourth best value and 0\% for the worst value.}
+  \item{pi_calibrated_toocheap, pi_calibrated_tooexpensive}{
+  Only required for the Newton Miller Smith extension. Calibrated
+  purchase probabilities for the "too cheap" and the "too
+  expensive" price, respectively. Must be a value between 0 and
+  1; by default set to zero following the logic in van
+  Westendorp's paper.}
 }
 
 
@@ -144,12 +174,12 @@ prices (usually via graphical inspection). The original paper
 describes the four intersections as follows:
 
 \itemize{
-\item \bold{Point of Marginal Cheapness (MGP)}: Below this price
+\item \bold{Point of Marginal Cheapness (PMC)}: Below this price
 point, there are more respondents that consider the price as
 "too cheap" than respondents who consider it as "not cheap"
 (intersection of "too cheap" and "not cheap"). This is interpreted
 as the lower limit of the range of acceptable prices.
-\item \bold{Point of Marginal Expensiveness (MEP)}. Above this
+\item \bold{Point of Marginal Expensiveness (PME)}. Above this
 price point, there are more respondent that consider the price
 as "too expensive" than there are respondents who consider it as
 "not expensive" (intersection of "not expensive" and "too
@@ -171,7 +201,7 @@ Besides those four intersections, van Westendorp's article
 advises to analyze the cumulative distribution functions for
 steep areas which indicate price steps.
 
-To analyze trial rates and estimate revenue forecasts,
+To analyze reach (trial rates) and estimate revenue forecasts,
 Newton/Miller/Smith have extended van Westendorp's original
 model by adding two purchase intent questions that are asked for
 the respondent's "cheap" and "expensive" price. The purchase
@@ -186,10 +216,10 @@ two additional purchase intent questions, it becomes possible to
 summarize the purchase probabilities across respondents (using
 linear interpolation for the purchase probabilities between each
 respondent's cornerstone prices). The maximum of this curve is
-then defined as the price point with the highest expected trial
-rate. Moreover, by multiplying the trial rate with the price, it
-also becomes possible to estimate a price with the highest
-expected revenue.
+then defined as the price point with the highest expected reach.
+Moreover, by multiplying the reach with the price, it also
+becomes possible to estimate a price with the highest expected
+revenue.
 
 It has to be noted that the van Westendorp Price Sensitivity
 Meter is useful in some cases, but does not answer every
@@ -252,20 +282,20 @@ The function output consists of the following elements:
     corresponding calibrated purchase probabilities as defined
     in the function input for the Newton Miller Smith
     extension.}
-    \item{\code{price_optimal_trial}:}{\code{numeric} object.
+    \item{\code{price_optimal_reach}:}{\code{numeric} object.
     Output of the Newton Miller Smith extension: Estimate for
-    the price with the highest trial rate.}
+    the price with the highest reach (trial rate).}
     \item{\code{price_optimal_revenue}:}{\code{numeric} object.
     Output of the Newton Miller Smith extension:
     Estimate for the price with the highest revenue (based on
-    the trial rate).}
+    the reach).}
 }
 
 \references{
   Van Westendorp, P (1976) "NSS-Price Sensitivity Meter (PSM) --
   A new approach to study consumer perception of price"
   \emph{Proceedings of the ESOMAR 29th Congress}, 139--167. Online
-  available at \url{https://www.researchworld.com/a-new-approach-to-study-consumer-perception-of-price/}.
+  available at \url{https://archive.researchworld.com/a-new-approach-to-study-consumer-perception-of-price/}.
 
   Newton, D, Miller, J, Smith, P, (1993) "A market acceptance
   extension to traditional price sensitivity measurement"
@@ -275,6 +305,12 @@ The function output consists of the following elements:
   Sawtooth Software (2016) "Templates for van Westendorp PSM for
   Lighthouse Studio and Excel". Online available at
   \url{https://sawtoothsoftware.com/resources/software-downloads/tools/van-westendorp-price-sensitivity-meter}
+
+  Examples for companies that use a narrower definition than
+  van Westendorp's original paper include Conjoint.ly
+  (\url{https://conjointly.com/products/van-westendorp/}),
+  Quantilope (\url{https://www.quantilope.com/resources/glossary-how-to-use-van-westendorp-pricing-model-to-inform-pricing-strategy}),
+  and Milieu (\url{https://www.mili.eu/learn/what-is-the-van-westendorp-pricing-study-and-when-to-use-it})
 }
 
 \seealso{

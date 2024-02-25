@@ -21,7 +21,7 @@ psm.class <- setClass("psm", slots = c(
   NMS = "logical",
   data_nms = "data.frame",
   pi_scale = "data.frame",
-  price_optimal_trial = "numeric",
+  price_optimal_reach = "numeric",
   price_optimal_revenue = "numeric"
 ))
 
@@ -35,9 +35,9 @@ summary.psm <- function(object, ...) {
   cat("Indifference Price Point:", object$idp, "\n")
   cat("Optimal Price Point:", object$opp, "\n\n")
 
-  if (object$NMS == TRUE) {
+  if (object$nms == TRUE) {
     cat("Newton Miller Smith Extension\n")
-    cat("Price with Optimal Trial Rate:", object$price_optimal_trial, "\n")
+    cat("Price with Optimal Reach:", object$price_optimal_reach, "\n")
     cat("Price with Optimal Revenue:", object$price_optimal_revenue, "\n\n")
   }
 
@@ -56,28 +56,4 @@ summary.psm <- function(object, ...) {
       cat("Consider re-running the analysis with option 'validate = TRUE' to exclude all cases with invalid price preferences (n = ", object$invalid_cases, ")", sep = "")
     }
   } # end of "invalid cases" section
-}
-
-#-------
-# Internal Helper Function: Identify Intersection Point
-# (with possibility to specify method in case there are multiple intersection points)
-
-identify_intersection <- function(data, var1, var2, method) {
-  first_intersection_pos <- which(data[, var1] >= data[, var2])[1]
-
-  if (is.na(first_intersection_pos)) { # if no intersection: return NA
-    return(NA)
-  } else { # otherwise, run the actual function
-    all_intersections_pos <- which(data[, var1] == data[first_intersection_pos, var1] &
-      data[, var2] == data[first_intersection_pos, var2])
-
-    all_intersections_prices <- data[all_intersections_pos, "price"]
-
-    switch(method,
-      min = {min(all_intersections_prices)},
-      max = {max(all_intersections_prices)},
-      mean = {mean(all_intersections_prices)},
-      median = {median(all_intersections_prices)}
-    )
-  }
 }

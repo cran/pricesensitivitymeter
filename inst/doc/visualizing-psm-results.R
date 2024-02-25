@@ -4,7 +4,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ---- echo=TRUE---------------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 library(pricesensitivitymeter)
 set.seed(20)
 
@@ -20,29 +20,31 @@ pi_cheap <- sample(x = c(1:5), size = length(cheap),
 pi_expensive <- sample(x = c(1:5), size = length(expensive),
   replace = TRUE, prob = c(0.3, 0.3, 0.2, 0.1, 0.1))
 
-data.psm <- data.frame(toocheap, cheap, expensive, tooexpensive,
+data_psm <- data.frame(toocheap, cheap, expensive, tooexpensive,
                        pi_cheap, pi_expensive)
 
 output_psm <- psm_analysis(toocheap = "toocheap",
                            cheap = "cheap",
                            expensive = "expensive",
                            tooexpensive = "tooexpensive",
-                           data = data.psm,
+                           data = data_psm,
                            pi_cheap = "pi_cheap",
                            pi_expensive = "pi_expensive",
                            validate = TRUE)
 
-## ---- fig.width = 7, fig.height = 4.5-----------------------------------------
+## ----fig.width = 7, fig.height = 4.5------------------------------------------
 library(ggplot2)
 
 default_psm_plot <- psm_plot(output_psm)
 
 default_psm_plot + theme_minimal()
 
-## ---- echo=TRUE---------------------------------------------------------------
-output_psm$data_vanwestendorp[260, ]
+## ----echo=TRUE----------------------------------------------------------------
+middle_row <- round(nrow(output_psm$data_vanwestendorp) / 2, 0)
 
-## ---- fig.width = 7, fig.height = 4.5-----------------------------------------
+output_psm$data_vanwestendorp[middle_row, ]
+
+## ----fig.width = 7, fig.height = 4.5------------------------------------------
 library(ggplot2)
 
 # all plot elements without any labels 
@@ -114,7 +116,7 @@ psmplot +
            alpha = 0.5) +
   theme_minimal()
 
-## ---- fig.width=7, fig.height=4.5---------------------------------------------
+## ----fig.width=7, fig.height=4.5----------------------------------------------
 par(cex.sub = 0.66) # reducing the font size of the subtitle
 
 # Setting up the plot: empty canvas
@@ -201,20 +203,20 @@ legend("bottomleft",
        col = c("#009E73", "#009E73", "#D55E00", "#D55E00"),
        cex = 0.66)
 
-## ---- fig.width=7-------------------------------------------------------------
+## ----fig.width=7--------------------------------------------------------------
 library(ggplot2)
 
-# Plot for Optimal Trial
+# Plot for Optimal Reach
 ggplot(data = output_psm$data_nms, aes(x = price)) + 
-  geom_line(aes(y = trial)) + # trial curve
-  geom_vline(xintercept = output_psm$price_optimal_trial,
+  geom_line(aes(y = reach)) + # reach curve
+  geom_vline(xintercept = output_psm$price_optimal_reach,
              linetype = "dotted") + # highlighting the optimal price
-  geom_text(data = subset(output_psm$data_nms, trial == max(trial)),
-            aes(x = price + 0.5, y = trial),
-            label = paste("Optimal Price:", output_psm$price_optimal_trial),
+  geom_text(data = subset(output_psm$data_nms, reach == max(reach)),
+            aes(x = price + 0.5, y = reach),
+            label = paste("Optimal Price:", output_psm$price_optimal_reach),
             hjust = 0) + # labelling the optimal price
-  labs(x = "Price", y = "Likelihood to Buy (Trial)",
-       title = "Price Sensitivity Meter: Price for Optimal Trial",
+  labs(x = "Price", y = "Likelihood to Buy (Reach)",
+       title = "Price Sensitivity Meter: Price for Optimal Reach",
        caption = "Data: Randomly generated") +
   theme_minimal()
 
@@ -234,17 +236,17 @@ ggplot(data = output_psm$data_nms, aes(x = price)) +
                        "respondents\nData: Randomly generated")) +
   theme_minimal()
 
-## ---- fig.width=7, fig.height=4.5---------------------------------------------
+## ----fig.width=7, fig.height=4.5----------------------------------------------
 par(cex.sub = 0.66) # reducing the font size of the subtitle
 
-# a) Plot for Optimal Trial
+# a) Plot for Optimal Reach
 # Main plot: Line, axis descriptions
 plot(x = output_psm$data_nms$price,
-     y = output_psm$data_nms$trial,
+     y = output_psm$data_nms$reach,
      type = "l",
-     main = "Price Sensitivity Meter: Price for Optimal Trial",
+     main = "Price Sensitivity Meter: Price for Optimal Reach",
      xlab = "Price",
-     ylab = "Likelihood to Buy (Trial)")
+     ylab = "Likelihood to Buy (Reach)")
 
 grid() # adding gridlines
 
@@ -256,13 +258,13 @@ par(adj = adj.old) # restore standard (so that next main title is again centered
 
 
 # drawing additional line to highlight optimal price
-abline(v = output_psm$data_nms$price[which.max(output_psm$data_nms$trial)],
+abline(v = output_psm$data_nms$price[which.max(output_psm$data_nms$reach)],
        lty = "dotted")
 
 # annotating the optimal price
-text(x = output_psm$data_nms$price[which.max(output_psm$data_nms$trial)],
-     y = max(output_psm$data_nms$trial),
-     labels = paste("Optimal Price:", output_psm$price_optimal_trial),
+text(x = output_psm$data_nms$price[which.max(output_psm$data_nms$reach)],
+     y = max(output_psm$data_nms$reach),
+     labels = paste("Optimal Price:", output_psm$price_optimal_reach),
      pos = 4)
 
 # b) Plot for Optimal Revenue

@@ -6,8 +6,10 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
                          validate = TRUE,
                          interpolate = FALSE, interpolation_steps = 0.01,
                          intersection_method = "min",
+                         acceptable_range = "original",
                          pi_cheap = NA, pi_expensive = NA,
-                         pi_scale = 5:1, pi_calibrated = c(0.7, 0.5, 0.3, 0.1, 0)) {
+                         pi_scale = 5:1, pi_calibrated = c(0.7, 0.5, 0.3, 0.1, 0),
+                         pi_calibrated_toocheap = 0, pi_calibrated_tooexpensive = 0) {
 
   #---
   # 1) Input Check: Price Sensitivity Meter data
@@ -23,19 +25,17 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
     stop("interpolate requires one logical value")
   }
 
-  # input check 1c: intersection_method must have length 1 and one of the pre-defined terms
-  if (length(intersection_method) != 1) {
-    stop("intersection_method must have length 1")
-  }
-
-  if (!intersection_method %in% c("min", "max", "mean", "median")) {
-    stop("intersection_method must be one of the pre-defined values: min, max, mean, median")
-  }
+  # input check 1c: intersection_method must be one of the pre-defined terms
+  match.arg(intersection_method, c("min", "max", "mean", "median"))
 
   # input check 1d: if interpolate == TRUE, interpolation steps must be numeric vector of length 1
   if (interpolate & (length(interpolation_steps) != 1 | !is.numeric(interpolation_steps))) {
     stop("interpolatation_steps must be numeric value (vector of length 1)")
   }
+
+
+  # input check 1e: acceptable_range must be one of the pre-defined terms
+  match.arg(acceptable_range, c("original", "narrower"))
 
   # input check 2: if data is provided in a dataset, structure and format must be correct
 
@@ -97,7 +97,7 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
   # 2) Input check: Newton Miller Smith Extension data
   #---
 
-  NMS <- !all(is.na(pi_cheap)) & !all(is.na(pi_expensive))
+  nms <- !all(is.na(pi_cheap)) & !all(is.na(pi_expensive))
 
   # input check 4: both purchase intent variables must have the same length
   if (length(pi_cheap) != length(pi_expensive)) {
@@ -105,7 +105,7 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
   }
 
   # input check 5a: NMS extension data if no data frame is provided
-  if (all(is.na(data)) & isTRUE(NMS)) {
+  if (all(is.na(data)) & isTRUE(nms)) {
 
     # purchase intent data must have same length as PSM data
     if (length(cheap) != length(pi_cheap)) {
@@ -121,8 +121,8 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
     psmdata$pi_expensive <- pi_expensive
   }
 
-  # input check 5b: NMS extension data if data frame is provided - check for matching variable names
-  if (!all(is.na(data)) & isTRUE(NMS)) {
+  # input check 5b: nms extension data if data frame is provided - check for matching variable names
+  if (!all(is.na(data)) & isTRUE(nms)) {
     col_pi_cheap <- match(pi_cheap, colnames(data))
     col_pi_expensive <- match(pi_expensive, colnames(data))
 
@@ -138,7 +138,7 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
   stopifnot(length(pi_scale) == length(pi_calibrated))
 
   # input check 7: purchase intent data must only contain values from the pre-defined scale
-  if (isTRUE(NMS)) {
+  if (isTRUE(nms)) {
     # check that purchase intent data and scale have the same class (special handling for integer vs. numeric vs. double)
     if (!identical(x = class(psmdata$pi_cheap), y = class(pi_scale)) &
       !(is.numeric(psmdata$pi_cheap) & is.numeric(pi_scale))) {
@@ -174,11 +174,11 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
     }
 
     if (any(pi_calibrated < 0)) {
-      warning("Some of the purchase intent calibration values are smaller than 0. It seems that this is not a probability between 0 and 1. The interpretation of the trial/revenue values is not recommended.")
+      warning("Some of the purchase intent calibration values are smaller than 0. It seems that this is not a probability between 0 and 1. The interpretation of the reach/revenue values is not recommended.")
     }
 
     if (any(pi_calibrated > 1)) {
-      warning("Some of the purchase intent calibration values are larger than 1. It seems that this is not a probability between 0 and 1. The interpretation of the trial/revenue values is not recommended.")
+      warning("Some of the purchase intent calibration values are larger than 1. It seems that this is not a probability between 0 and 1. The interpretation of the reach/revenue values is not recommended.")
     }
   }
 
@@ -212,11 +212,11 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
     stop("All respondents have intransitive preference structures (i.e. different from too cheap < cheap < expensive < too expensive).")
   }
 
-  if (isTRUE(validate) & !isTRUE(NMS)) {
+  if (isTRUE(validate) & !isTRUE(nms)) {
     psmdata <- subset(psmdata, psmdata$valid, select = c("toocheap", "cheap", "expensive", "tooexpensive"))
   }
 
-  if (isTRUE(validate) & isTRUE(NMS)) {
+  if (isTRUE(validate) & isTRUE(nms)) {
     psmdata <- subset(psmdata, psmdata$valid, select = c("toocheap", "cheap", "expensive", "tooexpensive", "pi_cheap", "pi_expensive"))
   }
 
@@ -305,21 +305,40 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
   # 5) Identifying the price points
   #-----
 
-  # price range, lower bound: intersection of "too cheap" and "not cheap"
-  pricerange_lower <- identify_intersection(
-    data = data_ecdf,
-    var1 = "ecdf_not_cheap",
-    var2 = "ecdf_toocheap",
-    method = intersection_method
-  )
+  if (acceptable_range=="original") {
 
-  # price range, upper bound: intersection of "not expensive" and "too expensive"
-  pricerange_upper <- identify_intersection(
-    data = data_ecdf,
-    var1 = "ecdf_tooexpensive",
-    var2 = "ecdf_not_expensive",
-    method = intersection_method
-  )
+    # price range, lower bound: intersection of "too cheap" and "not cheap"
+    pricerange_lower <- identify_intersection(
+      data = data_ecdf,
+      var1 = "ecdf_not_cheap",
+      var2 = "ecdf_toocheap",
+      method = intersection_method
+    )
+
+    # price range, upper bound: intersection of "not expensive" and "too expensive"
+    pricerange_upper <- identify_intersection(
+      data = data_ecdf,
+      var1 = "ecdf_tooexpensive",
+      var2 = "ecdf_not_expensive",
+      method = intersection_method
+    )
+  } else {
+    # price range, lower bound: intersection of "too cheap" and "expensive"
+    pricerange_lower <- identify_intersection(
+      data = data_ecdf,
+      var1 = "ecdf_expensive",
+      var2 = "ecdf_toocheap",
+      method = intersection_method
+    )
+
+    # price range, upper bound: intersection of "cheap" and "too expensive"
+    pricerange_upper <- identify_intersection(
+      data = data_ecdf,
+      var1 = "ecdf_tooexpensive",
+      var2 = "ecdf_cheap",
+      method = intersection_method
+    )
+  }
 
   # indifference price point IDP: intersection of "expensive" and "cheap"
   # interpretation: a) median price paid by consumer or b) price of the product of an important market leader
@@ -343,7 +362,7 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
   # 6) Newton/Miller/Smith extension
   #-----
 
-  # big if clause: run this whole section only if there is actually purchase intent data (which is required for the NMS extension)
+  # big if clause: run this whole section only if there is actually purchase intent data (which is required for the nms extension)
   if (!all(is.na(pi_cheap)) & !all(is.na(pi_expensive))) {
     # assign each respondent the calibrated probability of purchase
     psmdata$pi_cheap_cal <- NA
@@ -370,10 +389,10 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
     # 2) weighted purchase probability for "cheap" and "expensive"
 
     pos_toocheap <- sapply(as.character(psmdata$toocheap), FUN = function(x) which(colnames(nms_matrix) == x))
-    nms_matrix[cbind(seq_len(nrow(nms_matrix)), as.numeric(pos_toocheap))] <- 0
+    nms_matrix[cbind(seq_len(nrow(nms_matrix)), as.numeric(pos_toocheap))] <- pi_calibrated_toocheap
 
     pos_tooexpensive <- sapply(as.character(psmdata$tooexpensive), FUN = function(x) which(colnames(nms_matrix) == x))
-    nms_matrix[cbind(seq_len(nrow(nms_matrix)), as.numeric(pos_tooexpensive))] <- 0
+    nms_matrix[cbind(seq_len(nrow(nms_matrix)), as.numeric(pos_tooexpensive))] <- pi_calibrated_tooexpensive
 
     pos_cheap <- sapply(as.character(psmdata$cheap), FUN = function(x) which(colnames(nms_matrix) == x))
     nms_matrix[cbind(seq_len(nrow(nms_matrix)), as.numeric(pos_cheap))] <- psmdata$pi_cheap_cal
@@ -385,17 +404,17 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
 
     nms_matrix <- interpolate_nms_matrix(nms_matrix)
 
-    # analysis of trial and revenue (mean trial for each price)
+    # analysis of reach and revenue (mean reach for each price)
 
     data_nms <- data.frame(
       price = nms_prices,
-      trial = apply(nms_matrix, 2, mean),
+      reach = apply(nms_matrix, 2, mean),
       row.names = seq_len(length(nms_prices))
     )
 
-    data_nms$revenue <- data_nms$price * data_nms$trial
+    data_nms$revenue <- data_nms$price * data_nms$reach
 
-    price_optimal_trial <- data_nms$price[which.max(data_nms$trial)]
+    price_optimal_reach <- data_nms$price[which.max(data_nms$reach)]
     price_optimal_revenue <- data_nms$price[which.max(data_nms$revenue)]
   }
 
@@ -413,15 +432,16 @@ psm_analysis <- function(toocheap, cheap, expensive, tooexpensive, data = NA,
     pricerange_upper = pricerange_upper,
     idp = idp,
     opp = opp,
+    acceptable_range_definition = acceptable_range,
     weighted = FALSE,
-    NMS = NMS
+    nms = nms
   )
 
-  # if NMS analysis was run: amend additional NMS outputs
-  if (isTRUE(NMS)) {
+  # if nms analysis was run: amend additional nms outputs
+  if (isTRUE(nms)) {
     output_psm$data_nms <- data_nms
     output_psm$pi_scale <- data.frame(pi_scale, pi_calibrated)
-    output_psm$price_optimal_trial <- price_optimal_trial
+    output_psm$price_optimal_reach <- price_optimal_reach
     output_psm$price_optimal_revenue <- price_optimal_revenue
   }
 

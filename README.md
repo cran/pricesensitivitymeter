@@ -12,7 +12,7 @@ pricesensitivitymeter is an implementation of the van Westendorp Price
 Sensitivity Meter (PSM) in R, which is a popular method in market
 research to analyze consumer price preferences and price sensitivity. It
 also covers the so-called Newton Miller Smith Extension which allows to
-estimate prices that maximize the trial rate and the revenue.
+estimate prices that maximize the reach (trial rate) and the revenue.
 
 ## Installation
 
@@ -99,7 +99,7 @@ psm_plot(output_psm_demo) +
 Van Westendorp, P (1976) “NSS-Price Sensitivity Meter (PSM) – A new
 approach to study consumer perception of price” *Proceedings of the
 ESOMAR Congress*, 139–167. Online available at [the ESOMAR
-website](https://www.researchworld.com/a-new-approach-to-study-consumer-perception-of-price/).
+website](https://archive.researchworld.com/a-new-approach-to-study-consumer-perception-of-price/).
 
 Newton, D, Miller, J, Smith, P, (1993) “A market acceptance extension to
 traditional price sensitivity measurement” *Proceedings of the American

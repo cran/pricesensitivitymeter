@@ -41,8 +41,8 @@ psm_result3 <- psm_analysis(toocheap = "tch",
 #----
 
 test_that("Data Output: Length of Output Object", {
-  expect_length(psm_result1, 11)
-  expect_length(psm_result2, 15)
+  expect_length(psm_result1, 12)
+  expect_length(psm_result2, 16)
 })
 
 test_that("Data Output: Class of Output Object", {
@@ -112,9 +112,9 @@ test_that("Data Output: Rest of Output Object Structure", {
   expect_false(is.nan(psm_result1$opp))
   expect_length(psm_result1$opp, 1)
 
-  expect_true(is.logical(psm_result1$NMS))
-  expect_false(is.nan(psm_result1$NMS))
-  expect_length(psm_result1$NMS, 1)
+  expect_true(is.logical(psm_result1$nms))
+  expect_false(is.nan(psm_result1$nms))
+  expect_length(psm_result1$nms, 1)
 
   # PSM with NMS
   expect_true(is.logical(psm_result2$validated))
@@ -144,16 +144,16 @@ test_that("Data Output: Rest of Output Object Structure", {
   expect_false(is.nan(psm_result2$opp))
   expect_length(psm_result2$opp, 1)
 
-  expect_true(is.logical(psm_result2$NMS))
-  expect_false(is.nan(psm_result2$NMS))
-  expect_length(psm_result2$NMS, 1)
+  expect_true(is.logical(psm_result2$nms))
+  expect_false(is.nan(psm_result2$nms))
+  expect_length(psm_result2$nms, 1)
 
   expect_true(is.numeric(psm_result2$pi_scale$pi_calibrated))
   expect_false(unique(is.nan(psm_result2$pi_scale$pi_calibrated)))
 
-  expect_true(is.numeric(psm_result2$price_optimal_trial))
-  expect_false(is.nan(psm_result2$price_optimal_trial))
-  expect_length(psm_result2$price_optimal_trial, 1)
+  expect_true(is.numeric(psm_result2$price_optimal_revenue))
+  expect_false(is.nan(psm_result2$price_optimal_revenue))
+  expect_length(psm_result2$price_optimal_revenue, 1)
 
   expect_true(is.numeric(psm_result2$price_optimal_revenue))
   expect_false(is.nan(psm_result2$price_optimal_revenue))
@@ -165,8 +165,8 @@ test_that("Data Output: Rest of Output Object Structure", {
 #----
 
 test_that("Data Output: NMS correctly (not) included in output", {
-  expect_false(psm_result1$NMS)
-  expect_true(psm_result2$NMS)
+  expect_false(psm_result1$nms)
+  expect_true(psm_result2$nms)
 })
 
 test_that("Data Output: All prices included in the empirical cumulative density function data", {
@@ -253,8 +253,8 @@ test_that("Data Output - Plausibility: Price estimations must be within range of
   expect_gte(psm_result1$opp, min(psm_result1$data_vanwestendorp$price))
   expect_lte(psm_result1$opp, max(psm_result1$data_vanwestendorp$price))
 
-  expect_gte(psm_result2$price_optimal_trial, min(psm_result2$data_vanwestendorp$price))
-  expect_lte(psm_result2$price_optimal_trial, max(psm_result2$data_vanwestendorp$price))
+  expect_gte(psm_result2$price_optimal_revenue, min(psm_result2$data_vanwestendorp$price))
+  expect_lte(psm_result2$price_optimal_revenue, max(psm_result2$data_vanwestendorp$price))
 
   expect_gte(psm_result2$price_optimal_revenue, min(psm_result2$data_vanwestendorp$price))
   expect_lte(psm_result2$price_optimal_revenue, max(psm_result2$data_vanwestendorp$price))

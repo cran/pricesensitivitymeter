@@ -1,3 +1,9 @@
+# pricesensitivitymeter, v1.3.0 (release date: 2024-02-25)
+
+- new parameter "acceptable_range": allows to switch between van Westendorp's original definition of acceptable price ranges and a narrower definition which is used by some market research companies
+- new parameters "pi_calibrated_toocheap" and "pi_calibrated_tooexpensive" for functions psm_analysis() and psm_analysis_weighted(): allows to specify a calibrated purchase probability at the "too cheap" and "too expensive" price, respectively, which is different from zero
+- consistency: renames "trial" to "reach"
+
 # pricesensitivitymeter, v1.2.2 (release date: 2021-10-19)
 
 - psm_plot(): flexible color for Indifference Price Point and Optimal Price Point
