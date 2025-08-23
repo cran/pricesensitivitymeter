@@ -12,7 +12,7 @@
 
 <meta name="author" content="Max Alletsee" />
 
-<meta name="date" content="2024-02-25" />
+<meta name="date" content="2025-08-23" />
 
 <title>Using Weighted Survey Data</title>
 
@@ -51,7 +51,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Using Weighted Survey Data</h1>
 <h4 class="author">Max Alletsee</h4>
-<h4 class="date">2024-02-25</h4>
+<h4 class="date">2025-08-23</h4>
 
 
 
@@ -399,47 +399,46 @@ and creates the survey design object with the <em>survey</em> package
 (assuming simple random sampling and a population of 10k people).</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1976</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Warning: Paket &#39;survey&#39; wurde unter R Version 4.2.3 erstellt</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; Lade nötiges Paket: grid</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; Lade nötiges Paket: Matrix</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt; Lade nötiges Paket: survival</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; Attache Paket: &#39;survey&#39;</span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; Das folgende Objekt ist maskiert &#39;package:graphics&#39;:</span></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt;     dotchart</span></span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co"># Creating dataset with price acceptance and biased gender variable</span></span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>input_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">tch =</span> <span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">250</span>, <span class="at">mean =</span> <span class="dv">8</span>, <span class="at">sd =</span> <span class="fl">0.5</span>), <span class="at">digits =</span> <span class="dv">2</span>),</span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>                         <span class="at">ch =</span> <span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">250</span>, <span class="at">mean =</span> <span class="dv">12</span>, <span class="at">sd =</span> <span class="fl">0.5</span>), <span class="at">digits =</span> <span class="dv">2</span>),</span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>                         <span class="at">ex =</span> <span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">250</span>, <span class="at">mean =</span> <span class="dv">13</span>, <span class="at">sd =</span> <span class="fl">0.5</span>), <span class="at">digits =</span> <span class="dv">2</span>),</span>
-<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>                         <span class="at">tex =</span> <span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">250</span>, <span class="at">mean =</span> <span class="dv">15</span>, <span class="at">sd =</span> <span class="fl">0.5</span>), <span class="at">digits =</span> <span class="dv">2</span>),</span>
-<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>                         <span class="at">gender =</span> <span class="fu">sample</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;male&quot;</span>, <span class="st">&quot;female&quot;</span>),</span>
-<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>                                         <span class="at">size =</span> <span class="dv">250</span>,</span>
-<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>                                         <span class="at">replace =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>                                         <span class="at">prob =</span> <span class="fu">c</span>(<span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>)))</span>
-<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co"># for women: increasing the price acceptance by +50%</span></span>
-<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>input_data<span class="sc">$</span>tch[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="ot">&lt;-</span> input_data<span class="sc">$</span>tch[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="sc">*</span> <span class="fl">1.5</span></span>
-<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>input_data<span class="sc">$</span>ch[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="ot">&lt;-</span> input_data<span class="sc">$</span>ch[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="sc">*</span> <span class="fl">1.5</span></span>
-<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>input_data<span class="sc">$</span>ex[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="ot">&lt;-</span> input_data<span class="sc">$</span>ex[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="sc">*</span> <span class="fl">1.5</span></span>
-<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>input_data<span class="sc">$</span>tex[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="ot">&lt;-</span> input_data<span class="sc">$</span>tex[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="sc">*</span> <span class="fl">1.5</span></span>
-<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a></span>
-<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co"># for survey design object: occurrence of each gender in the target population</span></span>
-<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co"># it&#39;s only one figure in this example because we assume that gender should be perfectly balanced. </span></span>
-<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co"># if this is not balanced in the population, we would need a vector with the number of occurrences in the population.</span></span>
-<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co"># the sum of the strata size across all strata gives the total population size</span></span>
-<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="co"># (here: two strata with 5k each = 10k total population) </span></span>
-<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a>input_data<span class="sc">$</span>gender_pop <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
-<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a></span>
-<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="co"># creating the survey design object for post-stratification based on gender</span></span>
-<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co"># we assume that the selection of respondents within each gender is biased and...</span></span>
-<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="co"># only the gender balance in the sample is problematic</span></span>
-<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a>input_design <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="co"># no clusters</span></span>
-<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a>                          <span class="at">probs =</span> <span class="cn">NULL</span>, <span class="co"># hence no cluster sampling probabilities,</span></span>
-<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a>                          <span class="at">strata =</span> input_data<span class="sc">$</span>gender, <span class="co"># stratified by gender</span></span>
-<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a>                          <span class="at">fpc =</span> input_data<span class="sc">$</span>gender_pop, <span class="co"># strata size in the population</span></span>
-<span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a>                          <span class="at">data =</span> input_data) <span class="co"># data object used as input</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Lade nötiges Paket: grid</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; Lade nötiges Paket: Matrix</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; Lade nötiges Paket: survival</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; Attache Paket: &#39;survey&#39;</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; Das folgende Objekt ist maskiert &#39;package:graphics&#39;:</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt;     dotchart</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co"># Creating dataset with price acceptance and biased gender variable</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>input_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">tch =</span> <span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">250</span>, <span class="at">mean =</span> <span class="dv">8</span>, <span class="at">sd =</span> <span class="fl">0.5</span>), <span class="at">digits =</span> <span class="dv">2</span>),</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>                         <span class="at">ch =</span> <span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">250</span>, <span class="at">mean =</span> <span class="dv">12</span>, <span class="at">sd =</span> <span class="fl">0.5</span>), <span class="at">digits =</span> <span class="dv">2</span>),</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>                         <span class="at">ex =</span> <span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">250</span>, <span class="at">mean =</span> <span class="dv">13</span>, <span class="at">sd =</span> <span class="fl">0.5</span>), <span class="at">digits =</span> <span class="dv">2</span>),</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>                         <span class="at">tex =</span> <span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">250</span>, <span class="at">mean =</span> <span class="dv">15</span>, <span class="at">sd =</span> <span class="fl">0.5</span>), <span class="at">digits =</span> <span class="dv">2</span>),</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>                         <span class="at">gender =</span> <span class="fu">sample</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;male&quot;</span>, <span class="st">&quot;female&quot;</span>),</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>                                         <span class="at">size =</span> <span class="dv">250</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>                                         <span class="at">replace =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>                                         <span class="at">prob =</span> <span class="fu">c</span>(<span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>)))</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co"># for women: increasing the price acceptance by +50%</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>input_data<span class="sc">$</span>tch[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="ot">&lt;-</span> input_data<span class="sc">$</span>tch[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="sc">*</span> <span class="fl">1.5</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>input_data<span class="sc">$</span>ch[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="ot">&lt;-</span> input_data<span class="sc">$</span>ch[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="sc">*</span> <span class="fl">1.5</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>input_data<span class="sc">$</span>ex[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="ot">&lt;-</span> input_data<span class="sc">$</span>ex[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="sc">*</span> <span class="fl">1.5</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>input_data<span class="sc">$</span>tex[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="ot">&lt;-</span> input_data<span class="sc">$</span>tex[input_data<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">&quot;female&quot;</span>] <span class="sc">*</span> <span class="fl">1.5</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co"># for survey design object: occurrence of each gender in the target population</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co"># it&#39;s only one figure in this example because we assume that gender should be perfectly balanced. </span></span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co"># if this is not balanced in the population, we would need a vector with the number of occurrences in the population.</span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co"># the sum of the strata size across all strata gives the total population size</span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co"># (here: two strata with 5k each = 10k total population) </span></span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a>input_data<span class="sc">$</span>gender_pop <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co"># creating the survey design object for post-stratification based on gender</span></span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="co"># we assume that the selection of respondents within each gender is biased and...</span></span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co"># only the gender balance in the sample is problematic</span></span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a>input_design <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="co"># no clusters</span></span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a>                          <span class="at">probs =</span> <span class="cn">NULL</span>, <span class="co"># hence no cluster sampling probabilities,</span></span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a>                          <span class="at">strata =</span> input_data<span class="sc">$</span>gender, <span class="co"># stratified by gender</span></span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a>                          <span class="at">fpc =</span> input_data<span class="sc">$</span>gender_pop, <span class="co"># strata size in the population</span></span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a>                          <span class="at">data =</span> input_data) <span class="co"># data object used as input</span></span></code></pre></div>
 <p>After those preparations, we can run the weighted Price Sensitivity
 Meter Analysis using the <code>psm_analysis_weighted()</code> function.
 Its basic inputs are the names of the variables with the price
@@ -463,8 +462,8 @@ same template as the function for the unweighted PSM analysis.</p>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="fu">summary</span>(output_weighted_psm)</span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; Van Westendorp Price Sensitivity Meter Analysis</span></span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: 11.91 - 15.63 </span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 13.69 </span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: 11.9 - 15.62 </span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 13.68877 </span></span>
 <span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; Optimal Price Point: 13.63 </span></span>
 <span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
@@ -551,7 +550,7 @@ need sub-group analyses to understand this.</p>
 <span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; Van Westendorp Price Sensitivity Meter Analysis</span></span>
 <span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: 7.17 - 16.82 </span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 12.06 </span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 12.055 </span></span>
 <span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; Optimal Price Point: 8 </span></span>
 <span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
@@ -560,7 +559,7 @@ need sub-group analyses to understand this.</p>
 <span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; Van Westendorp Price Sensitivity Meter Analysis</span></span>
 <span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: 7.17 - 16.82 </span></span>
-<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 12.06 </span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 12.055 </span></span>
 <span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; Optimal Price Point: 7.995 </span></span>
 <span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
@@ -609,8 +608,8 @@ the results of our analysis.</p>
 <span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="fu">summary</span>(check_weighted_2)</span>
 <span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt; Van Westendorp Price Sensitivity Meter Analysis</span></span>
 <span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: 7.22 - 17.09 </span></span>
-<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 12.08 </span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: 7.22 - 17.03 </span></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 12.0725 </span></span>
 <span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="co">#&gt; Optimal Price Point: 8 </span></span>
 <span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
@@ -620,8 +619,8 @@ the results of our analysis.</p>
 <span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a><span class="fu">summary</span>(check_unweighted_2)</span>
 <span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a><span class="co">#&gt; Van Westendorp Price Sensitivity Meter Analysis</span></span>
 <span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: 7.22 - 17.09 </span></span>
-<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 12.075 </span></span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: 7.22 - 17.03 </span></span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 12.0725 </span></span>
 <span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a><span class="co">#&gt; Optimal Price Point: 7.995 </span></span>
 <span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
@@ -660,7 +659,7 @@ indifference price point are estimated.</p>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a></span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co"># create new sample design</span></span>
 <span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>input_design_2 <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="co"># no clusters</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>                                    <span class="at">probs =</span> <span class="cn">NULL</span>, <span class="co"># hence no cluster samling probabilities,</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>                                    <span class="at">probs =</span> <span class="cn">NULL</span>, <span class="co"># hence no cluster sampling probabilities,</span></span>
 <span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>                                    <span class="at">strata =</span> input_data_2<span class="sc">$</span>gender, <span class="co"># stratified by gender</span></span>
 <span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>                                    <span class="at">fpc =</span> input_data_2<span class="sc">$</span>gender_pop, <span class="co"># strata size in the population</span></span>
 <span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>                                    <span class="at">data =</span> input_data_2) <span class="co"># data object used as input</span></span>
@@ -673,8 +672,8 @@ indifference price point are estimated.</p>
 <span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="fu">summary</span>(test_2)</span>
 <span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; Van Westendorp Price Sensitivity Meter Analysis</span></span>
 <span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: NA - 15.63 </span></span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 13.69 </span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: NA - 15.62 </span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 13.68877 </span></span>
 <span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; Optimal Price Point: NA </span></span>
 <span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
@@ -719,13 +718,13 @@ same way as in the unweighted <code>psm_analysis()</code> function.</p>
 <span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="fu">summary</span>(test_3)</span>
 <span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a><span class="co">#&gt; Van Westendorp Price Sensitivity Meter Analysis</span></span>
 <span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: 11.91 - 15.63 </span></span>
-<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 13.69 </span></span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a><span class="co">#&gt; Accepted Price Range: 11.9 - 15.62 </span></span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co">#&gt; Indifference Price Point: 13.68877 </span></span>
 <span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a><span class="co">#&gt; Optimal Price Point: 13.63 </span></span>
 <span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a><span class="co">#&gt; Newton Miller Smith Extension</span></span>
-<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a><span class="co">#&gt; Price with Optimal Reach: 12.16 </span></span>
-<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a><span class="co">#&gt; Price with Optimal Revenue: 17.7 </span></span>
+<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a><span class="co">#&gt; Price with Optimal Reach: 11.99 </span></span>
+<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a><span class="co">#&gt; Price with Optimal Revenue: 17.8 </span></span>
 <span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb10-40"><a href="#cb10-40" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
 <span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a><span class="co">#&gt; 228 cases with individual price preferences were analyzed (weighted data).</span></span>

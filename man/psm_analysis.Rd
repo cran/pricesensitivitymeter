@@ -20,13 +20,14 @@ psm_analysis(
   data = NA,
   validate = TRUE,
   interpolate = FALSE,
-  interpolation_steps = 0.01,
+  interpolation_steps = get_psm_constant("DEFAULT_INTERPOLATION_STEPS"),
   intersection_method = "min",
   acceptable_range = "original",
   pi_cheap = NA, pi_expensive = NA,
-  pi_scale = 5:1,
-  pi_calibrated = c(0.7, 0.5, 0.3, 0.1, 0),
-  pi_calibrated_toocheap = 0, pi_calibrated_tooexpensive = 0
+  pi_scale = get_psm_constant("NMS_DEFAULTS.PI_SCALE"),
+  pi_calibrated = get_psm_constant("NMS_DEFAULTS.PI_CALIBRATED"),
+  pi_calibrated_toocheap = get_psm_constant("NMS_DEFAULTS.PI_CALIBRATED_TOOCHEAP"), 
+  pi_calibrated_tooexpensive = get_psm_constant("NMS_DEFAULTS.PI_CALIBRATED_TOOEXPENSIVE")
   )
 }
 
@@ -108,7 +109,7 @@ psm_analysis(
   \item{pi_scale}{Only required for the Newton Miller Smith
   extension. Scale of the purchase intent variables pi_cheap and
   pi_expensive. By default assuming a five-point scale with 5
-  indicating the highest purchase intent.}
+  indicating the highest purchase intent (i.e. \code{5:1}).}
   \item{pi_calibrated}{Only required for the Newton Miller Smith
   extension. Calibrated purchase probabilities that are assumed
   for each value of the purchase intent scale. Must be the same
@@ -123,7 +124,7 @@ psm_analysis(
   Only required for the Newton Miller Smith extension. Calibrated
   purchase probabilities for the "too cheap" and the "too
   expensive" price, respectively. Must be a value between 0 and
-  1; by default set to zero following the logic in van
+  1; by default set to \code{0} following the logic in van
   Westendorp's paper.}
 }
 
